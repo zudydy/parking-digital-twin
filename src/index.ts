@@ -31,8 +31,10 @@ function printResult(result: SimulationResult): void {
 }
 
 async function main(): Promise<void> {
-  const csvPath = process.argv[2]
-    ? path.resolve(process.cwd(), process.argv[2])
+  const args = process.argv.slice(2);
+  if (args[0] === "--") args.shift();
+  const csvPath = args[0]
+    ? path.resolve(process.cwd(), args[0])
     : defaultCsvPath;
   const vehicles = await loadVehiclesCsv(csvPath);
   printResult(simulateParking(vehicles));
