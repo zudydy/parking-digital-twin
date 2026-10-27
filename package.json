@@ -11,7 +11,9 @@
     "preview": "vite preview --host 127.0.0.1",
     "start": "node --import tsx src/index.ts",
     "test": "node --import tsx --test test/*.test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "train": "node --import tsx scripts/train.ts",
+    "evaluate": "node --import tsx scripts/evaluate.ts"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
