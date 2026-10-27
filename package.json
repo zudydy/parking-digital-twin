@@ -2,7 +2,7 @@
   "name": "parking-digital-twin",
   "version": "0.1.0",
   "private": true,
-  "description": "Nearest 알고리즘 기반 주차장 시뮬레이션 최소 프로토타입",
+  "description": "Nearest \uc54c\uace0\ub9ac\uc998 \uae30\ubc18 \uc8fc\ucc28\uc7a5 \uc2dc\ubbac\ub808\uc774\uc158 \ucd5c\uc18c \ud504\ub85c\ud1a0\ud0c0\uc785",
   "type": "module",
   "packageManager": "pnpm@12.3.4",
   "scripts": {
@@ -10,7 +10,7 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "start": "node --import tsx src/index.ts",
-    "test": "node --import tsx --test test/simulation.test.ts",
+    "test": "node --import tsx --test test/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
