@@ -63,7 +63,8 @@ export function simulateParking(vehicles: Vehicle[]): SimulationResult {
     .map((vehicle, inputOrder) => ({ ...vehicle, inputOrder }))
     .sort(
       (left, right) =>
-        left.arrivalTime - right.arrivalTime || left.inputOrder - right.inputOrder,
+        left.arrivalTime - right.arrivalTime ||
+        left.inputOrder - right.inputOrder,
     );
   const spots = createParkingSpots().sort(
     (left, right) => left.distance - right.distance || left.id - right.id,
@@ -103,7 +104,9 @@ export function simulateParking(vehicles: Vehicle[]): SimulationResult {
   }
 
   const assigned = assignments.filter(
-    (assignment): assignment is Assignment & {
+    (
+      assignment,
+    ): assignment is Assignment & {
       departureTime: number;
       spotId: number;
       distance: number;
@@ -118,8 +121,12 @@ export function simulateParking(vehicles: Vehicle[]): SimulationResult {
       sum + (assignment.departureTime - assignment.arrivalTime),
     0,
   );
-  const simulationStart = Math.min(...vehicles.map((vehicle) => vehicle.arrivalTime));
-  const lastArrival = Math.max(...vehicles.map((vehicle) => vehicle.arrivalTime));
+  const simulationStart = Math.min(
+    ...vehicles.map((vehicle) => vehicle.arrivalTime),
+  );
+  const lastArrival = Math.max(
+    ...vehicles.map((vehicle) => vehicle.arrivalTime),
+  );
   const lastDeparture = assigned.reduce(
     (latest, assignment) => Math.max(latest, assignment.departureTime),
     simulationStart,
@@ -129,7 +136,8 @@ export function simulateParking(vehicles: Vehicle[]): SimulationResult {
 
   return {
     totalVehicles: vehicles.length,
-    averageDistance: assigned.length === 0 ? 0 : totalDistance / assigned.length,
+    averageDistance:
+      assigned.length === 0 ? 0 : totalDistance / assigned.length,
     averageOccupancyRate:
       simulationDuration === 0
         ? 0

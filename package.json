@@ -13,12 +13,15 @@
     "test": "node --import tsx --test test/*.test.ts",
     "typecheck": "tsc --noEmit",
     "train": "node --import tsx scripts/train.ts",
-    "evaluate": "node --import tsx scripts/evaluate.ts"
+    "evaluate": "node --import tsx scripts/evaluate.ts",
+    "format": "prettier --write src scripts test docs README.md index.html package.json tsconfig.json",
+    "format:check": "prettier --check src scripts test docs README.md index.html package.json tsconfig.json"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "prettier": "3.9.10",
     "tsx": "^4.20.0",
     "typescript": "^5.9.0",
     "vite": "^8.3.1"

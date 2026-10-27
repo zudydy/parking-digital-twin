@@ -86,11 +86,7 @@ describe("CSV 입력 검증", () => {
     ["빈 CSV", "", /1행/],
     ["잘못된 헤더", "id,arrival,duration\nA,0,1", /1행/],
     ["데이터 없음", "vehicleId,arrivalTime,duration\n", /2행/],
-    [
-      "중복 ID",
-      "vehicleId,arrivalTime,duration\nA,0,1\nA,1,1",
-      /3행.*중복/,
-    ],
+    ["중복 ID", "vehicleId,arrivalTime,duration\nA,0,1\nA,1,1", /3행.*중복/],
     [
       "잘못된 숫자",
       "vehicleId,arrivalTime,duration\nA,x,1",
@@ -101,11 +97,7 @@ describe("CSV 입력 검증", () => {
       "vehicleId,arrivalTime,duration\nA,-1,1",
       /2행.*arrivalTime/,
     ],
-    [
-      "0인 주차 시간",
-      "vehicleId,arrivalTime,duration\nA,0,0",
-      /2행.*duration/,
-    ],
+    ["0인 주차 시간", "vehicleId,arrivalTime,duration\nA,0,0", /2행.*duration/],
   ];
 
   for (const [name, csv, expectedMessage] of invalidCases) {
