@@ -1,3 +1,4 @@
+import { withSearchCirculation } from "./twin/search.js";
 import { createAsymmetricScenario } from "./twin/variants.js";
 import { createAirportScenario } from "./twin/airport.js";
 import { validateSnapshot, type FloorId } from "./data/incheon.js";
@@ -22,9 +23,10 @@ async function main() {
     args,
     allowPositionals: true,
     options: {
+      "search-order": { type: "string", default: "distributed" },
       floor: { type: "string", default: "ground" },
       scenario: { type: "string", default: "cinema" },
-      strategy: { type: "string", default: "nearest" },
+      strategy: { type: "string", default: "search" },
       seed: { type: "string", default: "42" },
       count: { type: "string", default: "70" },
       uncertainty: { type: "string", default: "6" },
@@ -34,7 +36,7 @@ async function main() {
   });
   if (values.help) {
     console.log(
-      "pnpm start -- [vehicles.csv] [--scenario office|cinema|mall|incheon|asymmetric] [--floor ground|b1|b2] [--strategy nearest|random|rule|rl] [--seed 42] [--count 70] [--uncertainty 6] [--output result.json]",
+      "pnpm start -- [vehicles.csv] [--scenario office|cinema|mall|incheon|asymmetric] [--floor ground|b1|b2] [--strategy search|nearest|random|rule|rl] [--seed 42] [--count 70] [--uncertainty 6] [--output result.json]",
     );
     return;
   }
@@ -47,14 +49,16 @@ async function main() {
     throw new Error(
       "지원하는 시나리오: office, cinema, mall, incheon, asymmetric",
     );
-  if (!["nearest", "random", "rule", "rl"].includes(values.strategy!))
-    throw new Error("지원하는 전략: nearest, random, rule, rl");
+  if (!["search", "nearest", "random", "rule", "rl"].includes(values.strategy!))
+    throw new Error("지원하는 전략: search, nearest, random, rule, rl");
   const seed = Number(values.seed);
   if (!Number.isSafeInteger(seed)) throw new Error("seed는 정수여야 합니다.");
   if (!["ground", "b1", "b2"].includes(values.floor!))
     throw new Error("층은 ground, b1, b2 중 선택하세요.");
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-  const scenario = positionals[0]
+  if (!["distributed", "sequential"].includes(values["search-order"]!))
+    throw new Error("탐색 순서: distributed, sequential");
+  const inputScenario = positionals[0]
     ? scenarioFromCsv(
         await readFile(path.resolve(positionals[0]), "utf8"),
         path.basename(positionals[0]),
@@ -88,6 +92,10 @@ async function main() {
             Number(values.count),
             Number(values.uncertainty),
           );
+  const scenario = withSearchCirculation({
+    ...inputScenario,
+    searchOrder: values["search-order"] as "distributed" | "sequential",
+  });
   const strategy =
     values.strategy === "rl"
       ? rlStrategy(
@@ -107,7 +115,10 @@ async function main() {
             ),
           ),
         )
-      : baseline(values.strategy as "nearest" | "random" | "rule", seed);
+      : baseline(
+          values.strategy as "search" | "nearest" | "random" | "rule",
+          seed,
+        );
   const result = simulateTwin(scenario, strategy, false),
     m = result.metrics;
   console.log(`=== ${scenario.title} / ${strategy.id} / seed ${seed} ===`);
@@ -129,7 +140,7 @@ async function main() {
     await writeFile(
       output,
       JSON.stringify(
-        { schemaVersion: 2, input: scenario, ...result },
+        { schemaVersion: 3, input: scenario, ...result },
         null,
         2,
       ) + "\n",

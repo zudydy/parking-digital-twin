@@ -134,14 +134,14 @@ export function buildScene(
     asphalt = mat("#58626b"),
     curb = mat("#ebeadc");
   const base = new THREE.Mesh(
-    new RoundedBoxGeometry(width + 17, 1.4, depth + 29, 3, 1),
+    new RoundedBoxGeometry(width + 29, 1.4, depth + 29, 3, 1),
     ground,
   );
   base.position.set(width / 2, -0.9, depth / 2 - 4);
   base.receiveShadow = true;
   scene.add(base);
   const lot = new THREE.Mesh(
-    new RoundedBoxGeometry(width + 8, 0.24, depth + 9, 2, 0.4),
+    new RoundedBoxGeometry(width + 19, 0.24, depth + 24, 2, 0.4),
     paving,
   );
   lot.position.set(width / 2, -0.13, depth / 2);
@@ -363,7 +363,10 @@ export function buildScene(
   scene.add(terminal);
   const trunks: THREE.BufferGeometry[] = [],
     leaves: THREE.BufferGeometry[] = [];
-  for (const x of [-5, width + 5])
+  for (const x of [
+    layout.nodes.some((n) => n.id === "search-south-east") ? -11.5 : -5,
+    width + 5,
+  ])
     for (let z = 5; z <= 45; z += 10) {
       trunks.push(
         new THREE.CylinderGeometry(0.13, 0.17, 1.4, 5).translate(x, 0.8, z),
@@ -474,7 +477,7 @@ export function buildScene(
   >();
   const pickable: THREE.Object3D[] = [spots];
   for (const [i, trip] of result.trips.entries()) {
-    if (trip.spotId === null) continue;
+    if (trip.rejectionReason === "gate-full") continue;
     const group = new THREE.Group();
     const paint = bodyMats[i % bodyMats.length]!;
     const body = new THREE.Mesh(bodyGeo, paint);
@@ -600,7 +603,8 @@ export function buildScene(
       const trip = result.trips.find(
         (t) =>
           t.spotId === spotId &&
-          t.arrivalTime <= currentTime &&
+          t.spotFoundAt !== null &&
+          t.spotFoundAt <= currentTime &&
           (t.leftSpotAt === null || t.leftSpotAt > currentTime),
       );
       if (trip) onSelect(trip.vehicleId);
@@ -695,7 +699,10 @@ export function buildScene(
     for (const e of frame.edges)
       heatMats.get(e.edgeId)!.opacity =
         heatmap && e.queued ? Math.min(0.5, 0.18 + e.queued * 0.06) : 0;
-    const key = routes ? (selected ?? "") : "";
+    const selectedTrip = result.trips.find((t) => t.vehicleId === selected);
+    const key = routes
+      ? `${selected ?? ""}:${selectedTrip?.searchStartedAt !== null ? Math.floor(time) : "guided"}`
+      : "";
     if (key !== routeKey) {
       routeKey = key;
       for (const child of [...routeGroup.children]) {
@@ -706,10 +713,12 @@ export function buildScene(
           m.dispose(),
         );
       }
-      const trip = result.trips.find((t) => t.vehicleId === key);
+      const trip = routes ? selectedTrip : undefined;
       if (trip) {
         const points: THREE.Vector3[] = [];
-        for (const id of trip.route) {
+        for (const id of trip.searchStartedAt !== null
+          ? trip.segments.filter((s) => s.start <= time).map((s) => s.edgeId)
+          : trip.route) {
           const e = layout.edges.find((e) => e.id === id)!,
             a = layout.nodes.find((n) => n.id === e.from)!,
             b = layout.nodes.find((n) => n.id === e.to)!;

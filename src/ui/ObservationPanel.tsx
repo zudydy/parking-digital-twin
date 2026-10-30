@@ -7,6 +7,7 @@ import {
 } from "../data/incheon.js";
 import { createAirportScenario } from "../twin/airport.js";
 import { simulateTwin } from "../twin/engine.js";
+import { withSearchCirculation } from "../twin/search.js";
 import { baseline } from "../twin/strategies.js";
 import { frameAt, fmt } from "./presentation.js";
 import { download } from "./download.js";
@@ -84,7 +85,9 @@ export function ObservationPanel() {
     () =>
       history[0]
         ? simulateTwin(
-            createAirportScenario(history[0], floor, 42, 180, 6),
+            withSearchCirculation(
+              createAirportScenario(history[0], floor, 42, 180, 6),
+            ),
             baseline("nearest"),
           )
         : null,

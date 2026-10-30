@@ -1,3 +1,5 @@
+import { withSearchCirculation } from "./twin/search.js";
+import { SearchComparison } from "./ui/SearchComparison.js";
 import { ResearchPanel } from "./ui/ResearchPanel.js";
 import { DecisionPanel } from "./ui/DecisionPanel.js";
 import { ObservationPanel } from "./ui/ObservationPanel.js";
@@ -46,6 +48,19 @@ const metricRows: {
     unit: "tick",
     lower: true,
   },
+  {
+    key: "averageSearchTime",
+    label: "평균 빈자리 탐색 시간",
+    unit: "tick",
+    lower: true,
+  },
+  {
+    key: "averageDetourDistance",
+    label: "평균 탐색 우회거리",
+    unit: "단위",
+    lower: true,
+  },
+  { key: "searchFailures", label: "탐색 후 포기", unit: "대", lower: true },
   { key: "totalDelay", label: "누적 통로 지연", unit: "tick", lower: true },
   { key: "rejectionRate", label: "미배정률", unit: "%", lower: true },
   { key: "averageOccupancyRate", label: "시간가중 점유율", unit: "%" },
@@ -86,7 +101,7 @@ export function App() {
   const [dataLoading, setDataLoading] = useState(false),
     [dataMode, setDataMode] = useState("snapshot"),
     [dataError, setDataError] = useState("");
-  const [viewMode, setViewMode] = useState<"focus" | "compare">("focus"),
+  const [viewMode, setViewMode] = useState<"focus" | "compare">("compare"),
     [night, setNight] = useState(false);
   async function refreshAirport() {
     setDataLoading(true);
@@ -107,11 +122,16 @@ export function App() {
       setDataLoading(false);
     }
   }
+  const [searchOrder, setSearchOrder] = useState<"distributed" | "sequential">(
+    "distributed",
+  );
   const [type, setType] = useState<ModelType>("incheon");
   const [seed, setSeed] = useState(42),
     [count, setCount] = useState(180),
     [uncertainty, setUncertainty] = useState(6);
-  const [challenger, setChallenger] = useState<"rl" | "rule" | "random">("rl");
+  const [challenger, setChallenger] = useState<
+    "nearest" | "rl" | "rule" | "random"
+  >("nearest");
   const [custom, setCustom] = useState<Scenario | null>(null);
   const [error, setError] = useState("");
   const [time, setTime] = useState(0),
@@ -157,8 +177,8 @@ export function App() {
     }
     return () => controller.abort();
   }, []);
-  const scenario = useMemo(
-    () =>
+  const scenario = useMemo(() => {
+    const base =
       custom ??
       (type === "incheon"
         ? createAirportScenario(
@@ -170,9 +190,18 @@ export function App() {
           )
         : type === "asymmetric"
           ? createAsymmetricScenario("cinema", seed, count, uncertainty)
-          : createScenario(type, seed, count, uncertainty)),
-    [custom, type, seed, count, uncertainty, airportSnapshot, floor],
-  );
+          : createScenario(type, seed, count, uncertainty));
+    return withSearchCirculation({ ...base, searchOrder });
+  }, [
+    custom,
+    type,
+    seed,
+    count,
+    uncertainty,
+    airportSnapshot,
+    floor,
+    searchOrder,
+  ]);
   const family = scenario.layoutFamily ?? "standard";
   const activePolicy =
     featureMode === "no-departure"
@@ -182,16 +211,17 @@ export function App() {
         : scenario.layout.spots.length === 80
           ? airportPolicy
           : policy;
+  const [reference, setReference] = useState<"search" | "nearest">("search");
   const runs = useMemo(() => {
-    const left = simulateTwin(scenario, baseline("nearest", scenario.seed));
+    const left = simulateTwin(scenario, baseline(reference, scenario.seed));
     const right = simulateTwin(
       scenario,
       challenger === "rl" && activePolicy
         ? rlStrategy(activePolicy)
-        : baseline(challenger === "random" ? "random" : "rule", scenario.seed),
+        : baseline(challenger === "rl" ? "rule" : challenger, scenario.seed),
     );
     return [left, right] as const;
-  }, [scenario, challenger, activePolicy]);
+  }, [scenario, challenger, activePolicy, reference]);
   const [left, right] = runs;
   const end = Math.max(left.metrics.endTime, right.metrics.endTime, 1);
   useEffect(() => {
@@ -257,6 +287,13 @@ export function App() {
       "vehicleId",
       "initial",
       "spotId",
+      "spotFoundAt",
+      "searchStartedAt",
+      "searchEndedAt",
+      "searchDistance",
+      "checkedSpots",
+      "searchLaps",
+      "rejectionReason",
       "arrivalTime",
       "parkedAt",
       "departureRequestedAt",
@@ -280,6 +317,13 @@ export function App() {
           t.vehicleId,
           Boolean(t.initial),
           t.spotId,
+          t.spotFoundAt,
+          t.searchStartedAt,
+          t.searchEndedAt,
+          t.searchDistance,
+          t.checkedSpots,
+          t.searchLaps,
+          t.rejectionReason,
           t.arrivalTime,
           t.parkedAt,
           t.departureRequestedAt,
@@ -314,7 +358,7 @@ export function App() {
         </div>
         <div className="sidebar-note">
           <span className="tiny-status" />
-          SIMULATION ENGINE v0.4
+          SIMULATION ENGINE v0.5
           <br />
           <p>
             합성 수요 기반
@@ -377,7 +421,7 @@ export function App() {
                     "parking-results.json",
                     JSON.stringify(
                       {
-                        schemaVersion: 2,
+                        schemaVersion: 3,
                         scenario,
                         policy:
                           challenger === "rl" && activePolicy
@@ -426,6 +470,19 @@ export function App() {
                   </select>
                 </label>
                 <label>
+                  기준 방식
+                  <select
+                    aria-label="기준 방식"
+                    value={reference}
+                    onChange={(e) =>
+                      setReference(e.target.value as typeof reference)
+                    }
+                  >
+                    <option value="search">무안내 · 직접 탐색</option>
+                    <option value="nearest">빈자리 안내 · Nearest</option>
+                  </select>
+                </label>
+                <label>
                   비교 전략
                   <select
                     aria-label="비교 전략"
@@ -442,8 +499,24 @@ export function App() {
                           ? "(로딩 중)"
                           : ""}
                     </option>
-                    <option value="rule">Rule-based</option>
+                    <option value="nearest">빈자리 안내 · Nearest</option>
+                    <option value="rule">혼잡 고려 안내 · Rule-based</option>
                     <option value="random">Random</option>
+                  </select>
+                </label>
+                <label>
+                  탐색 시작 방식
+                  <select
+                    aria-label="탐색 시작 방식"
+                    value={searchOrder}
+                    onChange={(e) =>
+                      setSearchOrder(e.target.value as typeof searchOrder)
+                    }
+                  >
+                    <option value="distributed">
+                      분산 시작 · 이후 순서 탐색
+                    </option>
+                    <option value="sequential">첫 통로부터 순서 탐색</option>
                   </select>
                 </label>
                 <label>
@@ -742,7 +815,7 @@ export function App() {
                   <span>점유·대기 타임라인</span>
                   <div>
                     <i className="baseline-dot" />
-                    Nearest 점유 <i className="rl-dot" />
+                    {labels[left.strategy]} 점유 <i className="rl-dot" />
                     {labels[right.strategy]} 점유 <i className="queue-dot" />
                     비교 전략 대기
                   </div>
@@ -756,6 +829,14 @@ export function App() {
                 />
               </section>
             </section>
+            <SearchComparison
+              left={left}
+              right={right}
+              time={time}
+              selected={selected}
+              onSelect={setSelected}
+              onSeek={seek}
+            />
             <DecisionPanel
               result={right}
               time={time}
@@ -782,7 +863,7 @@ export function App() {
                     <thead>
                       <tr>
                         <th>지표</th>
-                        <th>Nearest</th>
+                        <th>{labels[left.strategy]}</th>
                         <th>{labels[right.strategy]}</th>
                         <th>차이</th>
                       </tr>
@@ -898,9 +979,14 @@ export function App() {
                               <dt>배정 위치</dt>
                               <dd>
                                 {visible
-                                  ? trip.spotId === null
-                                    ? "미배정"
-                                    : `P${String(trip.spotId).padStart(2, "0")}`
+                                  ? current?.phase === "searching"
+                                    ? "빈자리 탐색 중"
+                                    : trip.spotFoundAt !== null &&
+                                        trip.spotFoundAt > time
+                                      ? "아직 탐색 중"
+                                      : trip.spotId === null
+                                        ? "미배정"
+                                        : `P${String(trip.spotId).padStart(2, "0")}`
                                   : "—"}
                               </dd>
                             </div>
@@ -969,7 +1055,7 @@ export function App() {
         )}
         <footer>
           <span>Parking Twin · Algorithm Evaluation Platform</span>
-          <span>동일 seed, 동일 수요, 재현 가능한 비교.</span>
+          <span>무안내 탐색과 안내 배정, 동일 수요의 비교.</span>
         </footer>
       </main>
     </div>

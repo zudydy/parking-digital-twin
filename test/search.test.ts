@@ -42,14 +42,12 @@ test("empty first bay is found locally without any artificial search penalty", (
 });
 test("a full aisle causes actual circulation and a next-aisle sweep with no remote reservation", () => {
   const s = single();
-  s.initialParked = s.layout.spots
-    .slice(0, 5)
-    .map((p) => ({
-      vehicleId: `B-${p.id}`,
-      spotId: p.id,
-      departureRequest: 200,
-      estimatedDeparture: 200,
-    }));
+  s.initialParked = s.layout.spots.slice(0, 5).map((p) => ({
+    vehicleId: `B-${p.id}`,
+    spotId: p.id,
+    departureRequest: 200,
+    estimatedDeparture: 200,
+  }));
   const r = simulateTwin(s, baseline("search")),
     t = r.trips.find((t) => t.vehicleId === "A")!;
   assert.equal(t.spotId, 6);
@@ -145,14 +143,12 @@ test("search ignores departure forecasts; gate policy and normal guided behavior
 });
 test("searching poses are finite, moving and continuous before a space is known", () => {
   const s = single();
-  s.initialParked = s.layout.spots
-    .slice(0, 5)
-    .map((p) => ({
-      vehicleId: `B-${p.id}`,
-      spotId: p.id,
-      departureRequest: 200,
-      estimatedDeparture: 200,
-    }));
+  s.initialParked = s.layout.spots.slice(0, 5).map((p) => ({
+    vehicleId: `B-${p.id}`,
+    spotId: p.id,
+    departureRequest: 200,
+    estimatedDeparture: 200,
+  }));
   const r = simulateTwin(s, baseline("search")),
     trip = r.trips.find((t) => t.vehicleId === "A")!;
   let prev: { x: number; z: number } | null = null;
@@ -164,4 +160,61 @@ test("searching poses are finite, moving and continuous before a space is known"
       prev = pose;
     }
   }
+});
+test("a driver can exhaust a complete sweep when vacancies move behind it; failed search movement is charged and rendered", () => {
+  const s = createScenario("mall", 1, 1);
+  const row = (id: string) => {
+    let h = (s.seed ^ 2166136261) >>> 0;
+    for (const c of id) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
+    return h % 4;
+  };
+  const ids = Array.from({ length: 100 }, (_, i) => `D-${i}`);
+  const first = ids.find((id) => row(id) === 0)!,
+    later = ids.find((id) => row(id) === 3)!;
+  s.initialParked = s.layout.spots
+    .filter((p) => p.id !== 20)
+    .map((p) => ({
+      vehicleId: `B-${p.id}`,
+      spotId: p.id,
+      departureRequest: p.id === 1 ? 10 : 1000,
+      estimatedDeparture: 1000,
+    }));
+  s.vehicles = [
+    {
+      vehicleId: first,
+      arrivalTime: 0,
+      duration: 1000,
+      estimatedDeparture: 1000,
+    },
+    {
+      vehicleId: later,
+      arrivalTime: 11,
+      duration: 1000,
+      estimatedDeparture: 1000,
+    },
+  ];
+  const r = simulateTwin(s, baseline("search")),
+    t = r.trips.find((t) => t.vehicleId === first)!;
+  assert.equal(t.rejectionReason, "search-exhausted");
+  assert.equal(t.checkedSpots, 20);
+  assert.equal(t.spotId, null);
+  assert.ok(t.distance > t.searchDistance);
+  assert.ok(t.exitedAt! > t.searchEndedAt!);
+  assert.equal(r.metrics.searchFailures, 1);
+  assert.equal(
+    r.metrics.rejected,
+    r.metrics.entryRejected + r.metrics.searchFailures,
+  );
+  assert.ok(
+    r.frames.some((f) =>
+      f.vehicles.some((v) => v.vehicleId === first && v.phase === "outbound"),
+    ),
+  );
+  for (const f of r.frames.filter((f) =>
+    f.vehicles.some((v) => v.vehicleId === first),
+  )) {
+    const p = vehiclePose(r, t, f, f.time);
+    assert.ok(p && [p.x, p.z, p.heading].every(Number.isFinite));
+  }
+  assert.ok(r.metrics.operatingCost >= t.distance);
 });

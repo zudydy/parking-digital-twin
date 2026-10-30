@@ -29,8 +29,10 @@ export function vehiclePose(
   const state = frame.vehicles.find((v) => v.vehicleId === trip.vehicleId);
   if (!state) return null;
   const layout = result.scenario.layout;
-  const spot = layout.spots.find((s) => s.id === trip.spotId)!;
-  const node = layout.nodes.find((n) => n.id === spot.node)!;
+  const spot = layout.spots.find((s) => s.id === trip.spotId);
+  const node = spot
+    ? layout.nodes.find((n) => n.id === spot.node)!
+    : { x: state.x, y: state.y };
   const bay = worldPoint(node.x, node.y);
   bay.z += 3.4;
   const parkingStart = trip.parkedAt === null ? Infinity : trip.parkedAt - 1;

@@ -1,12 +1,14 @@
 import type { Frame, TwinResult } from "../twin/model.js";
 export const labels: Record<string, string> = {
-  nearest: "Nearest",
+  search: "무안내 · 직접 탐색",
+  nearest: "빈자리 안내 · Nearest",
   random: "Random",
   rule: "Rule-based",
   rl: "DQN / RL",
 };
 export const phaseLabels: Record<string, string> = {
-  inbound: "입차 이동",
+  inbound: "안내 경로 이동",
+  searching: "빈자리 탐색 중",
   parking: "주차 조작",
   parked: "주차 중",
   outbound: "출차 이동",

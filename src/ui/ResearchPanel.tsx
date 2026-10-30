@@ -20,6 +20,7 @@ interface Summary {
   learningSeeds: number[];
   trafficSeeds: number;
   metrics: Record<string, Stat>;
+  pairedVsSearch: Record<string, Delta>;
   pairedVsNearest: Record<string, Delta>;
   fullMinusNoDeparture?: Record<string, Delta>;
   points: {
@@ -64,12 +65,13 @@ const names: Record<string, string> = {
   standard: "기본 20면",
   airport: "인천공항 80면",
   asymmetric: "비대칭 출구 20면",
-  nearest: "Nearest",
-  random: "Random",
-  rule: "Rule-based",
+  search: "무안내 · 직접 탐색",
+  nearest: "빈자리 안내 · Nearest",
+  random: "무작위 빈자리 안내",
+  rule: "혼잡 고려 안내 · Rule-based",
   trained: "RL · 출차정보 사용",
   "no-departure": "RL · 출차정보 제외",
-  untrained: "학습 전 초기 정책",
+  untrained: "안내 · 학습 전 초기 정책",
   office: "사무실",
   cinema: "공연장",
   mall: "쇼핑몰",
@@ -78,6 +80,7 @@ const names: Record<string, string> = {
   b2: "지하2층",
 };
 const colors: Record<string, string> = {
+  search: "#be936c",
   nearest: "#97a79c",
   random: "#b5bc9a",
   rule: "#b19d77",
@@ -127,8 +130,8 @@ function ErrorBars({
       ))}
       {rows.map((r, i) => {
         const m = r.metrics[metric]!,
-          x = 65 + i * 102,
-          w = 55,
+          x = 55 + i * (635 / rows.length),
+          w = (635 / rows.length) * 0.57,
           y = 205 - (m.mean / max) * 160,
           low = 205 - (Math.max(0, m.mean - m.trafficStd) / max) * 160,
           high = 205 - ((m.mean + m.trafficStd) / max) * 160;
@@ -362,7 +365,7 @@ export function ResearchPanel() {
         return r.json();
       })
       .then((r) => {
-        if (r.schemaVersion !== 2 || r.objective !== "service-first-v2")
+        if (r.schemaVersion !== 3 || r.objective !== "service-first-v2")
           throw new Error("분석 목적함수 버전이 다릅니다.");
         setReport(r);
       })
@@ -403,6 +406,7 @@ export function ResearchPanel() {
       ) ?? [],
     [report, family, kind, count, noise],
   );
+  const nearest = rows.find((r) => r.strategy === "nearest");
   const full = rows.find((r) => r.strategy === "trained");
   const changeFamily = (f: Family) => {
     setFamily(f);
@@ -426,10 +430,10 @@ export function ResearchPanel() {
       <div className="intro">
         <div>
           <div className="eyebrow">EXPERIMENTS / REPRODUCIBLE EVIDENCE</div>
-          <h1>한 번의 시연을 넘어, 반복 실험으로.</h1>
+          <h1>직접 탐색과 안내, 효과를 나눠 검증합니다.</h1>
           <p>
-            학습 seed 3개 × 교통 seed 30개 · 같은 입력의 대응 비교 · 출차정보
-            제거 실험
+            무안내 탐색 · 빈자리 안내 · RL 안내 · 같은 수요의 대응 비교 ·
+            출차정보 제거 실험
           </p>
         </div>
         <a
@@ -526,6 +530,80 @@ export function ResearchPanel() {
         <section className="panel">
           <ErrorBars
             rows={rows}
+            metric="averageParkingTime"
+            title="입장 → 주차 완료 (tick) · 주차 성공 차량 평균"
+          />
+          <p>
+            직접 탐색의 이동·대기가 포함됩니다. 실패율과 공통 성공 차량의 대응
+            비교를 함께 확인하세요.
+          </p>
+        </section>
+        <section className="panel">
+          <ErrorBars
+            rows={rows}
+            metric="averageDetourDistance"
+            title="탐색 우회거리 · 최종 자리 최단 경로 대비 초과"
+          />
+          <p>
+            안내 차량의 우회거리는 0입니다. 전체 이동거리가 0이라는 뜻은
+            아닙니다.
+          </p>
+        </section>
+      </div>
+      <section className="panel paired-summary">
+        <div className="panel-heading">
+          <div>
+            <div className="eyebrow">
+              GUIDANCE EFFECT / SHARED SUCCESSFUL VEHICLES
+            </div>
+            <h2>무안내 직접 탐색 대비 안내의 효과</h2>
+            <p>
+              주차시간·거리는 양쪽에서 모두 주차한 차량끼리 대응합니다.
+              미배정률은 전체 입력 기준입니다.
+            </p>
+          </div>
+        </div>
+        <div className="paired-grid">
+          {[nearest, full]
+            .filter((r): r is Summary => !!r)
+            .flatMap((r) =>
+              [
+                "matchedParkingDelta",
+                "matchedDistanceDelta",
+                "rejectionRate",
+              ].map((key) => (
+                <article key={`${r.strategy}-${key}`}>
+                  <span>
+                    {r.strategy === "nearest" ? "빈자리 안내" : "RL 안내"} −
+                    무안내 ·{" "}
+                    {key === "matchedParkingDelta"
+                      ? "공통 성공 차량 주차시간"
+                      : key === "matchedDistanceDelta"
+                        ? "공통 성공 차량 총 이동거리"
+                        : "미배정률 (%p)"}
+                  </span>
+                  <strong>{fmt(r.pairedVsSearch[key]!.mean, 3)}</strong>
+                  <p>
+                    탐색적 95% 구간 [
+                    {r.pairedVsSearch[key]!.ci95.map((v) => fmt(v, 3)).join(
+                      ", ",
+                    )}
+                    ]
+                  </p>
+                </article>
+              )),
+            )}
+        </div>
+        <p className="result-note">
+          음수는 안내 방식의 해당 지표 감소입니다. 성공 차량만의 비교에는 선택
+          편향이 있을 수 있어 미배정률을 반드시 함께 표시합니다. 탐색 모델은
+          실측 운전자 행동으로 보정되지 않은 통제 모델입니다.
+        </p>
+      </section>
+      <div className="research-charts">
+        <section className="panel">
+          <ErrorBars
+            rows={rows}
             metric="rejectionRate"
             title="미배정률 (%) · 낮을수록 유리"
           />
@@ -544,7 +622,7 @@ export function ResearchPanel() {
         <div className="panel-heading">
           <div>
             <div className="eyebrow">PAIRED COMPARISON</div>
-            <h2>동일한 차량 입력에서 얼마나 달라졌을까</h2>
+            <h2>안내 전략 사이에서 RL이 더 개선했을까</h2>
           </div>
           <a
             href={`${import.meta.env.BASE_URL}research/analysis.json`}
@@ -558,7 +636,7 @@ export function ResearchPanel() {
             {["rejectionRate", "operatingPerVehicle"].map((key) => (
               <article key={key}>
                 <span>
-                  RL − Nearest ·{" "}
+                  RL 안내 − Nearest 안내 ·{" "}
                   {key === "rejectionRate" ? "미배정률 (%p)" : "운영비용/차량"}
                 </span>
                 <strong>{fmt(full.pairedVsNearest[key]!.mean, 4)}</strong>
@@ -672,8 +750,8 @@ export function ResearchPanel() {
             title="학습 Huber loss · 보상 개선과 별개인 최적화 지표"
           />
           <p>
-            초록 실선: 출차정보 사용 · 보라 점선: 제외 · 각 선은 독립 학습
-            seed입니다.
+            기존 안내 정책의 학습 기록 · 초록 실선: 출차정보 사용 · 보라 점선:
+            제외 · 각 선은 독립 학습 seed입니다.
           </p>
         </section>
       </div>
@@ -739,6 +817,12 @@ export function ResearchPanel() {
               PNG ↓
             </a>
           ))}
+          <a
+            href={`${import.meta.env.BASE_URL}research/search-sensitivity.json`}
+            download
+          >
+            탐색 시작 방식 민감도 JSON ↓
+          </a>
           <a href={`${import.meta.env.BASE_URL}research/overall.json`} download>
             전체 조건 요약 JSON ↓
           </a>
@@ -752,8 +836,9 @@ export function ResearchPanel() {
       </section>
       <p className="research-footnote">
         평가에 사용한 정책은 검증 데이터로만 선택했습니다. 학습 seed 전체가
-        평가에 포함되며, 테스트에서 성능이 좋은 seed만 추리지 않았습니다. 이전
-        v0.3 결과는 목적함수가 달라 이 결과와 직접 비교하지 않습니다.
+        평가에 포함되며, 테스트에서 성능이 좋은 seed만 추리지 않았습니다. v0.4는
+        안내 전략끼리만 비교한 과거 실험입니다. 무안내 탐색과의 비교는 이번
+        버전에서 추가했습니다.
       </p>
     </section>
   );
