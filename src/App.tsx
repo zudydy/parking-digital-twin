@@ -11,7 +11,13 @@ import { scenarioFromCsv } from "./twin/input.js";
 import type { Metrics, Scenario } from "./twin/model.js";
 import { RunPanel } from "./ui/ParkingMap.js";
 import { Timeline } from "./ui/Timeline.js";
-import { frameAt, fmt, labels, phaseLabels } from "./ui/presentation.js";
+import {
+  advanceTime,
+  frameAt,
+  fmt,
+  labels,
+  phaseLabels,
+} from "./ui/presentation.js";
 import { download } from "./ui/download.js";
 const metricRows: {
   key: keyof Metrics;
@@ -99,9 +105,9 @@ export function App() {
     let previous = performance.now(),
       id = 0;
     const animate = (now: number) => {
-      const elapsed = Math.min(100, now - previous);
+      const elapsed = now - previous;
       previous = now;
-      setTime((t) => Math.min(end, t + (elapsed / 350) * speed));
+      setTime((t) => advanceTime(t, elapsed, speed, end));
       id = requestAnimationFrame(animate);
     };
     id = requestAnimationFrame(animate);
@@ -111,7 +117,7 @@ export function App() {
     if (time >= end) setPlaying(false);
   }, [time, end]);
   const seek = (value: number) => {
-    setTime(value);
+    setTime(Math.max(0, Math.min(end, Number.isFinite(value) ? value : 0)));
     setPlaying(false);
   };
   const complete = time >= end;

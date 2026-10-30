@@ -19,5 +19,21 @@ export const fmt = (value: number, digits = 1) =>
     maximumFractionDigits: digits,
   });
 export function frameAt(result: TwinResult, time: number): Frame {
-  return result.frames[Math.min(Math.floor(time), result.metrics.endTime)]!;
+  const safeTime = Number.isFinite(time) ? time : 0;
+  return result.frames[
+    Math.max(0, Math.min(Math.floor(safeTime), result.metrics.endTime))
+  ]!;
+}
+
+/** RAF timestamps can precede effect setup by a fraction of a millisecond. */
+export function advanceTime(
+  time: number,
+  elapsedMs: number,
+  speed: number,
+  end: number,
+): number {
+  const elapsed = Number.isFinite(elapsedMs)
+    ? Math.max(0, Math.min(100, elapsedMs))
+    : 0;
+  return Math.max(0, Math.min(end, time + (elapsed / 350) * speed));
 }
