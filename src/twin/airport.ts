@@ -28,17 +28,25 @@ export function createAirportScenario(
   if (!floor) throw new Error("지원하지 않는 층입니다.");
   const random = seededRandom(seed),
     layout = createLayout(20);
-  // Display road lengths are ~3.2 units horizontally and 10 vertically.
-  // Three ticks on vertical links keep visual travel speed consistent.
+  // Official diagram: H/A on the terminal side, C/D behind, west/east pairs.
+  // Coordinates below are a reduced conceptual layout, not surveyed geometry.
+  layout.nodes = layout.nodes.map((node) => ({
+    ...node,
+    x: node.x >= 11 ? node.x + 2 : node.x,
+  }));
+  layout.spots = layout.spots.map((spot) => {
+    const row = Math.floor((spot.id - 1) / 20),
+      column = (spot.id - 1) % 20;
+    return {
+      ...spot,
+      zone: (floorId === "b2" ? 0 : row < 2 ? 0 : 2) + (column < 10 ? 1 : 2),
+    };
+  });
   layout.edges = layout.edges.map((edge) => {
     const from = layout.nodes.find((n) => n.id === edge.from)!,
       to = layout.nodes.find((n) => n.id === edge.to)!;
-    return {
-      ...edge,
-      ticks: from.x === to.x ? 3 : 1,
-      capacity: from.x === to.x ? 3 : 1,
-      headway: 1,
-    };
+    const ticks = from.x === to.x ? 3 : Math.round(Math.abs(to.x - from.x));
+    return { ...edge, ticks, capacity: ticks, headway: 1 };
   });
   const shuffled = [...layout.spots]
     .map((spot) => ({ spot, order: random() }))
@@ -91,8 +99,9 @@ export function createAirportScenario(
       available: floor.available,
       occupancyPercent: floor.occupancyPercent,
       modelCapacity: 80,
+      zones: floorId === "b2" ? ["H", "A"] : ["H", "A", "C", "D"],
       geometry:
-        "공식 H·A·C·D 구역을 참고한 개념 배치. 정밀 도면·실제 주차면 좌표가 아님.",
+        "공식 안내의 H/A·C/D 상대 배치(지하2층은 H/A)를 반영한 80면 개념 모델. 정밀 도면이나 실제 좌표가 아님.",
       demand:
         "초기 점유율만 관측값. 점유 면 위치·잔여 체류시간·후속 입출차는 seeded 합성.",
     },

@@ -55,6 +55,7 @@ export interface Scenario {
     available: number;
     occupancyPercent: number;
     modelCapacity: number;
+    zones: string[];
     geometry: string;
     demand: string;
   };

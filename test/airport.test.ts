@@ -38,6 +38,15 @@ describe("인천공항 관측 데이터와 축소 시뮬레이션", () => {
       scenario.vehicles.filter((v) => v.arrivalTime === 0).length,
     );
     assert.equal(result.metrics.totalVehicles, 35);
+    const expectedCost = result.trips.reduce(
+      (sum, t) =>
+        sum +
+        t.distance +
+        t.waitingTicks +
+        (t.spotId === null ? 30 : t.initial ? 0 : 1),
+      0,
+    );
+    assert.equal(result.metrics.cost, expectedCost);
     assert.equal(result.trips.filter((t) => t.initial).length, initial);
     assert.ok(
       result.trips.every((t) => t.spotId === null || t.exitedAt !== null),
@@ -58,6 +67,15 @@ describe("인천공항 관측 데이터와 축소 시뮬레이션", () => {
     );
     const result = simulateTwin(scenario, rlStrategy(policy), false);
     assert.equal(result.metrics.totalVehicles, 35);
+    const expectedCost = result.trips.reduce(
+      (sum, t) =>
+        sum +
+        t.distance +
+        t.waitingTicks +
+        (t.spotId === null ? 30 : t.initial ? 0 : 1),
+      0,
+    );
+    assert.equal(result.metrics.cost, expectedCost);
     const old = parsePolicy(
       JSON.parse(readFileSync("public/policy.json", "utf8")),
     );
