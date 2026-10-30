@@ -16,7 +16,11 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id: string) =>
-          id.includes("/node_modules/three/") ? "three" : undefined,
+          id.includes("/node_modules/three/")
+            ? id.includes("/build/three.core.js")
+              ? "three-core"
+              : "three-engine"
+            : undefined,
       },
     },
   },

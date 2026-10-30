@@ -12,11 +12,13 @@ export function Timeline({
   end: number;
   onSeek: (time: number) => void;
 }) {
+  const capacity = left.scenario.layout.spots.length;
+  const scale = 60 / capacity;
   const line = (result: TwinResult, queue = false) =>
     result.frames
       .map(
         (f) =>
-          `${24 + (f.time / end) * 952},${queue ? 92 - Math.min(20, f.vehicles.filter((v) => v.waiting).length) * 3 : 92 - f.occupied.length * 3}`,
+          `${24 + (f.time / end) * 952},${queue ? 92 - Math.min(capacity, f.vehicles.filter((v) => v.waiting).length) * scale : 92 - f.occupied.length * scale}`,
       )
       .join(" ");
   return (
@@ -38,16 +40,16 @@ export function Timeline({
         );
       }}
     >
-      {[0, 10, 20].map((n) => (
+      {[0, capacity / 2, capacity].map((n) => (
         <g key={n}>
           <line
             x1="24"
             x2="976"
-            y1={92 - n * 3}
-            y2={92 - n * 3}
+            y1={92 - n * scale}
+            y2={92 - n * scale}
             stroke="#e7edf4"
           />
-          <text x="4" y={96 - n * 3}>
+          <text x="4" y={96 - n * scale}>
             {n}
           </text>
         </g>

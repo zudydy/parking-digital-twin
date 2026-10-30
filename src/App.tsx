@@ -19,6 +19,11 @@ import {
   phaseLabels,
 } from "./ui/presentation.js";
 import { download } from "./ui/download.js";
+import airportJson from "../public/data/incheon-t1.json?raw";
+import { validateSnapshot, type FloorId } from "./data/incheon.js";
+import { createAirportScenario } from "./twin/airport.js";
+import { AirportDataPanel } from "./ui/AirportDataPanel.js";
+type ModelType = ScenarioType | "incheon";
 const metricRows: {
   key: keyof Metrics;
   label: string;
@@ -46,9 +51,38 @@ const metricRows: {
 export function App() {
   const [policy, setPolicy] = useState<PolicyFile | null>(null);
   const [policyError, setPolicyError] = useState("");
-  const [type, setType] = useState<ScenarioType>("cinema");
+  const [airportPolicy, setAirportPolicy] = useState<PolicyFile | null>(null);
+  const [airportSnapshot, setAirportSnapshot] = useState(() =>
+    validateSnapshot(JSON.parse(airportJson)),
+  );
+  const [floor, setFloor] = useState<FloorId>("ground");
+  const [dataLoading, setDataLoading] = useState(false),
+    [dataMode, setDataMode] = useState("snapshot"),
+    [dataError, setDataError] = useState("");
+  const [viewMode, setViewMode] = useState<"focus" | "compare">("focus"),
+    [night, setNight] = useState(false);
+  async function refreshAirport() {
+    setDataLoading(true);
+    setDataError("");
+    try {
+      const response = await fetch("/api/incheon", {
+        signal: AbortSignal.timeout(15000),
+      });
+      if (!response.ok) throw new Error();
+      const next = validateSnapshot(await response.json());
+      setAirportSnapshot(next);
+      setDataMode("live");
+    } catch {
+      setDataError(
+        "공식 현황을 갱신하지 못했습니다. 표시된 시각의 저장 스냅샷을 유지합니다.",
+      );
+    } finally {
+      setDataLoading(false);
+    }
+  }
+  const [type, setType] = useState<ModelType>("incheon");
   const [seed, setSeed] = useState(42),
-    [count, setCount] = useState(70),
+    [count, setCount] = useState(180),
     [uncertainty, setUncertainty] = useState(6);
   const [challenger, setChallenger] = useState<"rl" | "rule" | "random">("rl");
   const [custom, setCustom] = useState<Scenario | null>(null);
@@ -63,36 +97,53 @@ export function App() {
   const uploadRevision = useRef(0);
   useEffect(() => {
     const controller = new AbortController();
-    fetch(`${import.meta.env.BASE_URL}policy.json`, {
-      signal: controller.signal,
-    })
-      .then((r) => {
-        if (!r.ok) throw new Error("정책 파일을 불러오지 못했습니다.");
-        return r.json();
+    for (const [filename, set] of [
+      ["policy.json", setPolicy],
+      ["policy-airport.json", setAirportPolicy],
+    ] as const) {
+      fetch(`${import.meta.env.BASE_URL}${filename}`, {
+        signal: controller.signal,
       })
-      .then((p) => setPolicy(parsePolicy(p)))
-      .catch((e) => {
-        if (e.name !== "AbortError") {
-          setPolicyError(String(e.message));
-          setChallenger("rule");
-        }
-      });
+        .then((r) => {
+          if (!r.ok) throw new Error("학습 정책을 불러오지 못했습니다.");
+          return r.json();
+        })
+        .then((p) => set(parsePolicy(p)))
+        .catch((e) => {
+          if (e.name !== "AbortError") {
+            setPolicyError(String(e.message));
+            setChallenger("rule");
+          }
+        });
+    }
     return () => controller.abort();
   }, []);
   const scenario = useMemo(
-    () => custom ?? createScenario(type, seed, count, uncertainty),
-    [custom, type, seed, count, uncertainty],
+    () =>
+      custom ??
+      (type === "incheon"
+        ? createAirportScenario(
+            airportSnapshot,
+            floor,
+            seed,
+            count,
+            uncertainty,
+          )
+        : createScenario(type, seed, count, uncertainty)),
+    [custom, type, seed, count, uncertainty, airportSnapshot, floor],
   );
+  const activePolicy =
+    scenario.layout.spots.length === 80 ? airportPolicy : policy;
   const runs = useMemo(() => {
     const left = simulateTwin(scenario, baseline("nearest", scenario.seed));
     const right = simulateTwin(
       scenario,
-      challenger === "rl" && policy
-        ? rlStrategy(policy)
+      challenger === "rl" && activePolicy
+        ? rlStrategy(activePolicy)
         : baseline(challenger === "random" ? "random" : "rule", scenario.seed),
     );
     return [left, right] as const;
-  }, [scenario, challenger, policy]);
+  }, [scenario, challenger, activePolicy]);
   const [left, right] = runs;
   const end = Math.max(left.metrics.endTime, right.metrics.endTime, 1);
   useEffect(() => {
@@ -154,6 +205,7 @@ export function App() {
     const headers = [
       "strategy",
       "vehicleId",
+      "initial",
       "spotId",
       "arrivalTime",
       "parkedAt",
@@ -173,6 +225,7 @@ export function App() {
         [
           r.strategy,
           t.vehicleId,
+          Boolean(t.initial),
           t.spotId,
           t.arrivalTime,
           t.parkedAt,
@@ -207,7 +260,7 @@ export function App() {
         </div>
         <div className="sidebar-note">
           <span className="tiny-status" />
-          LOCAL SIMULATION
+          SIMULATION ENGINE v0.3
           <br />
           <p>
             합성 수요 기반
@@ -232,9 +285,13 @@ export function App() {
         </header>
         <section className="intro">
           <div>
-            <div className="eyebrow">INTERACTIVE DIGITAL TWIN</div>
-            <h1>같은 주차장, 다른 선택.</h1>
-            <p>동일한 차량 흐름에서 배정 전략이 만드는 차이를 관찰하세요.</p>
+            <div className="eyebrow">PARKING INTELLIGENCE / DIGITAL TWIN</div>
+            <h1>
+              공간을 읽고, 흐름을 설계하다<span className="title-dot">.</span>
+            </h1>
+            <p>
+              실제 관측 데이터와 학습 정책으로 탐색하는 입체 주차 시뮬레이션.
+            </p>
           </div>
           <button
             className="outline"
@@ -245,8 +302,8 @@ export function App() {
                   {
                     schemaVersion: 1,
                     scenario,
-                    policyTraining: policy?.training ?? null,
-                    model: "one-way-20-v1",
+                    policyTraining: activePolicy?.training ?? null,
+                    model: `one-way-${scenario.layout.spots.length}-v1`,
                     results: runs.map(({ frames: _, ...r }) => r),
                   },
                   null,
@@ -268,11 +325,12 @@ export function App() {
                 onChange={(e) => {
                   uploadRevision.current++;
                   setCustom(null);
-                  setType(e.target.value as ScenarioType);
+                  setType(e.target.value as ModelType);
                   setError("");
                 }}
               >
                 {custom && <option value="csv">{custom.title}</option>}
+                <option value="incheon">인천공항 T1 · 공식 데이터</option>
                 {scenarioTypes.map((t) => (
                   <option key={t} value={t}>
                     {createScenario(t).title}
@@ -289,9 +347,13 @@ export function App() {
                   setChallenger(e.target.value as typeof challenger)
                 }
               >
-                <option value="rl" disabled={!policy}>
+                <option value="rl" disabled={!activePolicy}>
                   DQN / RL{" "}
-                  {policyError ? "(불러오기 실패)" : !policy ? "(로딩 중)" : ""}
+                  {policyError
+                    ? "(불러오기 실패)"
+                    : !activePolicy
+                      ? "(로딩 중)"
+                      : ""}
                 </option>
                 <option value="rule">Rule-based</option>
                 <option value="random">Random</option>
@@ -308,6 +370,7 @@ export function App() {
                 <option value="35">저수요 · 35대</option>
                 <option value="70">기본 · 70대</option>
                 <option value="110">고수요 · 110대</option>
+                <option value="180">공항 수요 · 180대</option>
               </select>
             </label>
             <label>
@@ -355,7 +418,13 @@ export function App() {
             />
           </div>
           <div className="config-caption">
-            <span className="tag">{custom ? "CSV INPUT" : "SYNTHETIC"}</span>
+            <span className="tag">
+              {custom
+                ? "CSV INPUT"
+                : type === "incheon"
+                  ? "OFFICIAL + MODEL"
+                  : "SYNTHETIC"}
+            </span>
             <p>{scenario.description}</p>
             <button
               className="text-button"
@@ -376,6 +445,17 @@ export function App() {
             </div>
           )}
         </section>
+        {type === "incheon" && !custom && (
+          <AirportDataPanel
+            snapshot={airportSnapshot}
+            floor={floor}
+            onFloor={setFloor}
+            loading={dataLoading}
+            mode={dataMode}
+            error={dataError}
+            onRefresh={refreshAirport}
+          />
+        )}
         <section className="overview" aria-label="실험 개요">
           <article>
             <span>입력 차량</span>
@@ -388,9 +468,13 @@ export function App() {
           <article>
             <span>주차 공간</span>
             <strong>
-              20<small>면</small>
+              {scenario.layout.spots.length}
+              <small>면</small>
             </strong>
-            <p>4개 구역 · 단방향 통로</p>
+            <p>
+              {scenario.initialParked?.length ?? 0}대 초기 점유 ·{" "}
+              {new Set(scenario.layout.spots.map((s) => s.zone)).size}개 구역
+            </p>
           </article>
           <article>
             <span>관측 구간</span>
@@ -403,12 +487,12 @@ export function App() {
           <article>
             <span>강화학습 정책</span>
             <strong>
-              {policy ? policy.training.episodes : "—"}
+              {activePolicy ? activePolicy.training.episodes : "—"}
               <small>episodes</small>
             </strong>
             <p>
-              {policy
-                ? `검증 선택 · ${policy.training.selectedEpisode}회차`
+              {activePolicy
+                ? `${scenario.layout.spots.length}면 정책 · ${activePolicy.training.selectedEpisode}회차 선택`
                 : "정책 불러오는 중"}
             </p>
           </article>
@@ -416,8 +500,38 @@ export function App() {
         <section className="simulation-section">
           <div className="section-heading">
             <h2>
-              전략 비교 <span>동일 입력 · 독립 실행</span>
+              시뮬레이션 스튜디오 <span>ORTHOGRAPHIC VIEW</span>
             </h2>
+            <div className="studio-options">
+              <div className="view-switch">
+                <button
+                  aria-pressed={viewMode === "focus"}
+                  onClick={() => setViewMode("focus")}
+                >
+                  ◈ 몰입 보기
+                </button>
+                <button
+                  aria-pressed={viewMode === "compare"}
+                  onClick={() => setViewMode("compare")}
+                >
+                  ◫ 분할 비교
+                </button>
+              </div>
+              <button
+                className="light-switch"
+                onClick={() => setNight((v) => !v)}
+                aria-label="조명 전환"
+              >
+                {night ? "☾ 야간" : "☀ 주간"}
+              </button>
+            </div>
+          </div>
+          <div className="studio-toolbar">
+            <span>
+              {scenario.title}
+              <b> · </b>
+              {labels[right.strategy]}
+            </span>
             <div className="layer-options">
               <label>
                 <input
@@ -437,19 +551,24 @@ export function App() {
               </label>
             </div>
           </div>
-          <div className="comparison-grid">
-            {runs.map((result, index) => (
-              <RunPanel
-                key={index}
-                result={result}
-                index={index}
-                time={time}
-                selected={selected}
-                onSelect={setSelected}
-                heatmap={heatmap}
-                routes={routes}
-              />
-            ))}
+          <div
+            className={`comparison-grid ${viewMode === "focus" ? "focus-mode" : ""}`}
+          >
+            {runs.map((result, index) =>
+              viewMode === "focus" && index === 0 ? null : (
+                <RunPanel
+                  key={index}
+                  result={result}
+                  index={index}
+                  time={time}
+                  selected={selected}
+                  onSelect={setSelected}
+                  heatmap={heatmap}
+                  routes={routes}
+                  night={night}
+                />
+              ),
+            )}
           </div>
           <section className="playback panel" aria-label="공통 재생 제어">
             <div className="playback-top">
@@ -463,7 +582,7 @@ export function App() {
                     if (complete) setTime(0);
                     setPlaying((p) => !p);
                   }}
-                  disabled={challenger === "rl" && !policy}
+                  disabled={challenger === "rl" && !activePolicy}
                 >
                   {playing ? "Ⅱ 일시정지" : complete ? "↻ 다시 재생" : "▶ 재생"}
                 </button>
@@ -604,6 +723,25 @@ export function App() {
                 </button>
               )}
             </div>
+            <div className="inspector-picker">
+              <label htmlFor="vehicle-select">차량 선택</label>
+              <select
+                id="vehicle-select"
+                aria-label="차량 선택"
+                value={selected ?? ""}
+                onChange={(e) => setSelected(e.target.value || null)}
+              >
+                <option value="">지도 또는 목록에서 선택</option>
+                {right.trips
+                  .filter((t) => t.arrivalTime <= time)
+                  .map((t) => (
+                    <option key={t.vehicleId} value={t.vehicleId}>
+                      {t.vehicleId}
+                      {t.initial ? " · 초기 주차" : ""}
+                    </option>
+                  ))}
+              </select>
+            </div>
             {!selected ? (
               <div className="empty-inspector">
                 <div>⌖</div>
@@ -682,10 +820,12 @@ export function App() {
         <section className="model-note">
           <strong>모델을 이해하고 결과를 읽어주세요.</strong>
           <p>
-            실제 시설을 측정한 데이터가 아닌 합성 실험입니다. 시간은 추상
-            tick이며 통로 간선 용량과 FIFO 대기로 혼잡을 계산합니다. 교차로
-            충돌·차량 길이는 반영하지 않습니다. 기본 구조에서 총 경로 길이는
-            동일하므로 시간과 지연을 중심으로 비교하세요. RL의 우수성을 보장하지
+            {scenario.provenance
+              ? "인천공항 공식 점유율과 잔여 대수로 초기화한 축소 실험입니다. 개별 차량 기록과 정밀 도면을 재현한 것은 아닙니다."
+              : "입·출차 패턴을 구성한 합성 실험입니다."}{" "}
+            시간은 추상 tick이며 통로 용량과 FIFO 대기로 혼잡을 계산합니다. 입체
+            차량과 주차 동작은 엔진 궤적의 시각적 보간이며, 차간거리·교차로
+            충돌까지 계산하는 미시 교통 모델은 아닙니다. RL의 우수성을 보장하지
             않습니다.
           </p>
         </section>
