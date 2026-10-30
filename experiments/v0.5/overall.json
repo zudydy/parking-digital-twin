@@ -1,0 +1,1510 @@
+{
+  "schemaVersion": 1,
+  "objective": "service-first-v2",
+  "aggregation": "Equal weight over the 27 fixed design conditions per family; bootstrap learner × shared traffic after averaging conditions. No population inference over layouts or demand types.",
+  "summaries": [
+    {
+      "family": "standard",
+      "strategy": "search",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.268398268398293,
+        "operatingPerVehicle": 14.037580567580557,
+        "averageParkingTime": 9.846871527923277,
+        "averageDetourDistance": 2.597525408806862,
+        "averageSearchTime": 8.850733166070086,
+        "searchFailures": 0.003703703703703704,
+        "matchedCount": 53.01111111111111
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "averageParkingTime": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": 0.1717171717171717,
+          "ci95": [
+            0.11111111111111112,
+            0.23905723905723913
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 1.808542568542568,
+          "ci95": [
+            1.6944844877344882,
+            1.932065416065416
+          ]
+        }
+      }
+    },
+    {
+      "family": "standard",
+      "strategy": "nearest",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.096681096681134,
+        "operatingPerVehicle": 12.229037999038004,
+        "averageParkingTime": 7.051915742828299,
+        "averageDetourDistance": 0,
+        "averageSearchTime": 0,
+        "searchFailures": 0,
+        "matchedCount": 52.95925925925926
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": -0.1717171717171717,
+          "ci95": [
+            -0.23905723905723913,
+            -0.11111111111111112
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -1.808542568542568,
+          "ci95": [
+            -1.9320654160654163,
+            -1.6944844877344882
+          ]
+        },
+        "averageParkingTime": {
+          "mean": -2.7949557850949827,
+          "ci95": [
+            -2.9694985423411016,
+            -2.636650974704543
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": -2.800004445379376,
+          "ci95": [
+            -2.9739998759888526,
+            -2.6431603039245095
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": -2.5950980354744577,
+          "ci95": [
+            -2.7658385223105597,
+            -2.4403064592339008
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "family": "standard",
+      "strategy": "random",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.093314093314135,
+        "operatingPerVehicle": 12.1246176046176,
+        "averageParkingTime": 7.613513513171501,
+        "averageDetourDistance": 0,
+        "averageSearchTime": 0,
+        "searchFailures": 0,
+        "matchedCount": 52.95925925925926
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": -0.1750841750841751,
+          "ci95": [
+            -0.2424242424242425,
+            -0.11784511784511786
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -1.9129629629629628,
+          "ci95": [
+            -2.041420634920635,
+            -1.7937132034632035
+          ]
+        },
+        "averageParkingTime": {
+          "mean": -2.2333580147517917,
+          "ci95": [
+            -2.4032148818607495,
+            -2.0758220149002007
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": -2.232233944144204,
+          "ci95": [
+            -2.4016333443820517,
+            -2.076000299092373
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": -2.595066381802112,
+          "ci95": [
+            -2.7657404748732675,
+            -2.4403079113955473
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.003367003367003366,
+          "ci95": [
+            -0.010101010101010098,
+            0
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.10442039442039444,
+          "ci95": [
+            -0.14574098124098125,
+            -0.06540019240019251
+          ]
+        }
+      }
+    },
+    {
+      "family": "standard",
+      "strategy": "rule",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.093314093314135,
+        "operatingPerVehicle": 12.195820105820111,
+        "averageParkingTime": 7.11473134582791,
+        "averageDetourDistance": 0,
+        "averageSearchTime": 0,
+        "searchFailures": 0,
+        "matchedCount": 52.96296296296296
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": -0.1750841750841751,
+          "ci95": [
+            -0.2424242424242425,
+            -0.11669472502805853
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -1.841760461760462,
+          "ci95": [
+            -1.9670706269039604,
+            -1.727362554112554
+          ]
+        },
+        "averageParkingTime": {
+          "mean": -2.7321401820953826,
+          "ci95": [
+            -2.9064493845200765,
+            -2.573872471591633
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": -2.7350749774947,
+          "ci95": [
+            -2.9094188542607915,
+            -2.577490043005524
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": -2.5950001786313948,
+          "ci95": [
+            -2.7656345895196464,
+            -2.4402222196321315
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.0033670033670033664,
+          "ci95": [
+            -0.01122334455667789,
+            0.0022446689113355795
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.033217893217893237,
+          "ci95": [
+            -0.05063993105659774,
+            -0.015880030463363833
+          ]
+        }
+      }
+    },
+    {
+      "family": "standard",
+      "strategy": "trained",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.096681096680914,
+        "operatingPerVehicle": 12.0972604350382,
+        "averageParkingTime": 7.600413490047992,
+        "averageDetourDistance": 0,
+        "averageSearchTime": 0,
+        "searchFailures": 0,
+        "matchedCount": 52.961316872427986
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": -0.17171717171717166,
+          "ci95": [
+            -0.2413019079685746,
+            -0.11147586980920314
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -1.9403201325423551,
+          "ci95": [
+            -2.0688833172999854,
+            -1.817921944310833
+          ]
+        },
+        "averageParkingTime": {
+          "mean": -2.246458037875281,
+          "ci95": [
+            -2.421650094428662,
+            -2.067948582665091
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": -2.2447650730790043,
+          "ci95": [
+            -2.4221799771321075,
+            -2.0668870647570126
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": -2.5948885103530186,
+          "ci95": [
+            -2.765218435367634,
+            -2.432147855541829
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": 1.927470528863119e-18,
+          "ci95": [
+            -0.008230452674897115,
+            0.007856341189674525
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.13177756399978624,
+          "ci95": [
+            -0.17859924643257982,
+            -0.08622756667201117
+          ]
+        }
+      },
+      "fullMinusUntrained": {
+        "rejectionRate": {
+          "mean": 0.0018705574261129818,
+          "ci95": [
+            -0.004115226337448563,
+            0.00897867564534232
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.052572283683394776,
+          "ci95": [
+            -0.086175618620063,
+            -0.013868940730051878
+          ]
+        }
+      },
+      "fullMinusNoDeparture": {
+        "rejectionRate": {
+          "mean": 0.0022446689113355812,
+          "ci95": [
+            -0.0041152263374485566,
+            0.00898802843247284
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.027020469242691473,
+          "ci95": [
+            -0.1027839105339105,
+            0.0354378574100796
+          ]
+        }
+      }
+    },
+    {
+      "family": "standard",
+      "strategy": "no-departure",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.094436427769562,
+        "operatingPerVehicle": 12.124280904280893,
+        "averageParkingTime": 7.734829524941192,
+        "averageDetourDistance": 0,
+        "averageSearchTime": 0,
+        "searchFailures": 0,
+        "matchedCount": 52.961728395061726
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": -0.17396184062850725,
+          "ci95": [
+            -0.24354657687991021,
+            -0.11223344556677885
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -1.9132996632996626,
+          "ci95": [
+            -2.0408816337983002,
+            -1.782240981240981
+          ]
+        },
+        "averageParkingTime": {
+          "mean": -2.112042002982055,
+          "ci95": [
+            -2.303341763569438,
+            -1.9260334175442264
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": -2.1095865625650583,
+          "ci95": [
+            -2.3056314867551078,
+            -1.9243424493487995
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": -2.5950829432598317,
+          "ci95": [
+            -2.7651106131186354,
+            -2.432200481700698
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.0022446689113355795,
+          "ci95": [
+            -0.010101010101010104,
+            0.004489337822671152
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.10475709475709478,
+          "ci95": [
+            -0.176623977873978,
+            -0.03489646464646478
+          ]
+        }
+      }
+    },
+    {
+      "family": "standard",
+      "strategy": "untrained",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.0948105392548,
+        "operatingPerVehicle": 12.149832718721584,
+        "averageParkingTime": 7.622689577258917,
+        "averageDetourDistance": 0,
+        "averageSearchTime": 0,
+        "searchFailures": 0,
+        "matchedCount": 52.96337448559671
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": -0.17358772914328466,
+          "ci95": [
+            -0.2435465768799102,
+            -0.11298166853722405
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -1.88774784885896,
+          "ci95": [
+            -2.011444377638822,
+            -1.7622196969696966
+          ]
+        },
+        "averageParkingTime": {
+          "mean": -2.224181950664349,
+          "ci95": [
+            -2.511955066700661,
+            -1.9028835531075106
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": -2.2219217763465466,
+          "ci95": [
+            -2.510774002747241,
+            -1.8970180546495632
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": -2.5949503050713383,
+          "ci95": [
+            -2.7646759653641366,
+            -2.431951435983141
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.0018705574261129799,
+          "ci95": [
+            -0.010101010101010098,
+            0.0048634493078937545
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.07920528031639147,
+          "ci95": [
+            -0.13626245256800815,
+            -0.031959315375982116
+          ]
+        }
+      }
+    },
+    {
+      "family": "airport",
+      "strategy": "search",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 17.576986388097495,
+        "operatingPerVehicle": 45.27409623298516,
+        "averageParkingTime": 22.2686298412355,
+        "averageDetourDistance": 3.300805892782056,
+        "averageSearchTime": 21.268629841235487,
+        "searchFailures": 0,
+        "matchedCount": 139.0185185185185
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "averageParkingTime": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": 0.6539411206077876,
+          "ci95": [
+            0.5028656220322888,
+            0.8103814498258942
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 3.255194998417221,
+          "ci95": [
+            2.8419601930990828,
+            3.6993488445710665
+          ]
+        }
+      }
+    },
+    {
+      "family": "airport",
+      "strategy": "nearest",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 16.92304526748973,
+        "operatingPerVehicle": 42.018901234567856,
+        "averageParkingTime": 19.30926939658201,
+        "averageDetourDistance": 0,
+        "averageSearchTime": 0,
+        "searchFailures": 0,
+        "matchedCount": 136.6037037037037
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": -0.6539411206077876,
+          "ci95": [
+            -0.8103814498258944,
+            -0.5028656220322891
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -3.255194998417221,
+          "ci95": [
+            -3.6993488445710674,
+            -2.8419601930990828
+          ]
+        },
+        "averageParkingTime": {
+          "mean": -2.9593604446534867,
+          "ci95": [
+            -3.410381940570359,
+            -2.559192489816458
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": -3.113720555682563,
+          "ci95": [
+            -3.568973436687493,
+            -2.7041132920551423
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": -3.2983961361154064,
+          "ci95": [
+            -3.7268555692320273,
+            -2.898124676679363
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "family": "airport",
+      "strategy": "random",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 16.927223805001603,
+        "operatingPerVehicle": 42.035036403925346,
+        "averageParkingTime": 21.19894935976425,
+        "averageDetourDistance": 0,
+        "averageSearchTime": 0,
+        "searchFailures": 0,
+        "matchedCount": 136.55925925925925
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": -0.6497625830959165,
+          "ci95": [
+            -0.812135960747072,
+            -0.4994578980690095
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -3.2390598290598285,
+          "ci95": [
+            -3.6832653608736945,
+            -2.8252245014245014
+          ]
+        },
+        "averageParkingTime": {
+          "mean": -1.0696804814712073,
+          "ci95": [
+            -1.5414057317340228,
+            -0.6454340677674104
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": -1.0831577470742293,
+          "ci95": [
+            -1.550972877569233,
+            -0.6666108459915553
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": -3.317452934649852,
+          "ci95": [
+            -3.745450096607764,
+            -2.915467871496455
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": 0.004178537511870676,
+          "ci95": [
+            -0.02548749604305184,
+            0.03276669832225371
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0.016135169357391652,
+          "ci95": [
+            -0.04214557613168707,
+            0.07657822095599881
+          ]
+        }
+      }
+    },
+    {
+      "family": "airport",
+      "strategy": "rule",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 16.913939010235328,
+        "operatingPerVehicle": 41.95986113749082,
+        "averageParkingTime": 19.506234592619634,
+        "averageDetourDistance": 0,
+        "averageSearchTime": 0,
+        "searchFailures": 0,
+        "matchedCount": 136.61851851851853
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": -0.6630473778621929,
+          "ci95": [
+            -0.8184253983328058,
+            -0.5106829692940806
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -3.314235095494356,
+          "ci95": [
+            -3.7537521499419655,
+            -2.9116933945341357
+          ]
+        },
+        "averageParkingTime": {
+          "mean": -2.7623952486158725,
+          "ci95": [
+            -3.2053263499699662,
+            -2.363260716485495
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": -2.9095104129541265,
+          "ci95": [
+            -3.366385211928189,
+            -2.498211339778509
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": -3.3048866663304555,
+          "ci95": [
+            -3.7339085393484455,
+            -2.904708243027569
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.009106257254405468,
+          "ci95": [
+            -0.025320776617073,
+            0.0067531919383769755
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.05904009707713415,
+          "ci95": [
+            -0.10103037089796367,
+            -0.02102344887622688
+          ]
+        }
+      }
+    },
+    {
+      "family": "airport",
+      "strategy": "trained",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 16.911367873096243,
+        "operatingPerVehicle": 42.033680982026695,
+        "averageParkingTime": 21.14537282678381,
+        "averageDetourDistance": 0,
+        "averageSearchTime": 0,
+        "searchFailures": 0,
+        "matchedCount": 136.5695473251029
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": -0.6656185150012311,
+          "ci95": [
+            -0.8227619499841723,
+            -0.5254620836410965
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -3.2404152509584607,
+          "ci95": [
+            -3.6829600154760644,
+            -2.8351599679926838
+          ]
+        },
+        "averageParkingTime": {
+          "mean": -1.1232570144516356,
+          "ci95": [
+            -1.5975030452817598,
+            -0.6651258646147671
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": -1.1131260344544875,
+          "ci95": [
+            -1.5951529014865233,
+            -0.6581446781222458
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": -3.3008375054635892,
+          "ci95": [
+            -3.7425118524755354,
+            -2.8864348209953214
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.011677394393443912,
+          "ci95": [
+            -0.0512234005135241,
+            0.026660071752664157
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0.014779747458759745,
+          "ci95": [
+            -0.03889759945130322,
+            0.06867389029580377
+          ]
+        }
+      },
+      "fullMinusUntrained": {
+        "rejectionRate": {
+          "mean": -0.003218318033132823,
+          "ci95": [
+            -0.0345246385987128,
+            0.024348422496570647
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0.000035102528929663466,
+          "ci95": [
+            -0.04575449773134943,
+            0.047244246597024434
+          ]
+        }
+      },
+      "fullMinusNoDeparture": {
+        "rejectionRate": {
+          "mean": 0.005142274278076722,
+          "ci95": [
+            -0.028040958812563535,
+            0.036201857127782885
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.02795487320178678,
+          "ci95": [
+            -0.06433910256410266,
+            0.011157910379515185
+          ]
+        }
+      }
+    },
+    {
+      "family": "airport",
+      "strategy": "no-departure",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 16.90622559881821,
+        "operatingPerVehicle": 42.06163585522852,
+        "averageParkingTime": 21.17596729392597,
+        "averageDetourDistance": 0,
+        "averageSearchTime": 0,
+        "searchFailures": 0,
+        "matchedCount": 136.5962962962963
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": -0.6707607892793079,
+          "ci95": [
+            -0.8338722697056028,
+            -0.520119499841722
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -3.2124603777566727,
+          "ci95": [
+            -3.653365851535297,
+            -2.8077040598290597
+          ]
+        },
+        "averageParkingTime": {
+          "mean": -1.092662547309556,
+          "ci95": [
+            -1.561406079442805,
+            -0.6469449684513294
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": -1.093895892440854,
+          "ci95": [
+            -1.5679264401348247,
+            -0.653933539452877
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": -3.3069147505286933,
+          "ci95": [
+            -3.752272796300606,
+            -2.8929274234319333
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.016819668671520623,
+          "ci95": [
+            -0.05308721114276676,
+            0.017517410572966213
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0.04273462066054655,
+          "ci95": [
+            -0.007586359079877688,
+            0.0944003772290808
+          ]
+        }
+      }
+    },
+    {
+      "family": "airport",
+      "strategy": "untrained",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 16.914586191129366,
+        "operatingPerVehicle": 42.03364587949767,
+        "averageParkingTime": 21.031581709216233,
+        "averageDetourDistance": 0,
+        "averageSearchTime": 0,
+        "searchFailures": 0,
+        "matchedCount": 136.61152263374487
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": -0.6624001969680985,
+          "ci95": [
+            -0.8237363265449693,
+            -0.5194384650557493
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -3.2404503534873914,
+          "ci95": [
+            -3.68316020540959,
+            -2.8392971378073235
+          ]
+        },
+        "averageParkingTime": {
+          "mean": -1.2370481320192408,
+          "ci95": [
+            -1.6883593607940555,
+            -0.8232881313715106
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": -1.262632858902688,
+          "ci95": [
+            -1.715676277685118,
+            -0.8491386434311662
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": -3.3043022716109314,
+          "ci95": [
+            -3.7480890515840537,
+            -2.8856011864555158
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.00845907636031108,
+          "ci95": [
+            -0.04348440083008004,
+            0.022993651296120084
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0.014744644929830074,
+          "ci95": [
+            -0.04621437339523762,
+            0.07429765396925872
+          ]
+        }
+      }
+    },
+    {
+      "family": "asymmetric",
+      "strategy": "search",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.268398268398293,
+        "operatingPerVehicle": 12.840846560846519,
+        "averageParkingTime": 9.84364049690554,
+        "averageDetourDistance": 2.597525408806862,
+        "averageSearchTime": 8.847502487584586,
+        "searchFailures": 0.003703703703703704,
+        "matchedCount": 53.01111111111111
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "averageParkingTime": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": 0.1717171717171717,
+          "ci95": [
+            0.11111111111111112,
+            0.23905723905723913
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 2.093256373256374,
+          "ci95": [
+            1.9855964405964406,
+            2.208799543049543
+          ]
+        }
+      }
+    },
+    {
+      "family": "asymmetric",
+      "strategy": "nearest",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.096681096681134,
+        "operatingPerVehicle": 10.74759018759019,
+        "averageParkingTime": 7.051915742828299,
+        "averageDetourDistance": 0,
+        "averageSearchTime": 0,
+        "searchFailures": 0,
+        "matchedCount": 52.95925925925926
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": -0.1717171717171717,
+          "ci95": [
+            -0.23905723905723913,
+            -0.11111111111111112
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -2.093256373256374,
+          "ci95": [
+            -2.208799543049543,
+            -1.9855964405964406
+          ]
+        },
+        "averageParkingTime": {
+          "mean": -2.7917247540772467,
+          "ci95": [
+            -2.9656394302890714,
+            -2.6333184272241135
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": -2.7967680663140593,
+          "ci95": [
+            -2.9704185937084837,
+            -2.639844597432408
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": -2.8416236989573167,
+          "ci95": [
+            -3.0114264220656146,
+            -2.6845606709874517
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "family": "asymmetric",
+      "strategy": "random",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.093314093314135,
+        "operatingPerVehicle": 10.869331409331396,
+        "averageParkingTime": 7.613513513171501,
+        "averageDetourDistance": 0,
+        "averageSearchTime": 0,
+        "searchFailures": 0,
+        "matchedCount": 52.95925925925926
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": -0.1750841750841751,
+          "ci95": [
+            -0.2424242424242425,
+            -0.11784511784511786
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -1.9715151515151519,
+          "ci95": [
+            -2.088843795093795,
+            -1.8599290524290526
+          ]
+        },
+        "averageParkingTime": {
+          "mean": -2.230126983734055,
+          "ci95": [
+            -2.3990410030656633,
+            -2.072725221450159
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": -2.2289975650788865,
+          "ci95": [
+            -2.3968340565064357,
+            -2.073642123931151
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": -2.6025057750487384,
+          "ci95": [
+            -2.771826245931597,
+            -2.4407914629826837
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.003367003367003366,
+          "ci95": [
+            -0.010101010101010098,
+            0
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0.12174122174122176,
+          "ci95": [
+            0.08951563251563252,
+            0.15645695045695052
+          ]
+        }
+      }
+    },
+    {
+      "family": "asymmetric",
+      "strategy": "rule",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.091069424402797,
+        "operatingPerVehicle": 10.770633317299971,
+        "averageParkingTime": 7.105033368366875,
+        "averageDetourDistance": 0,
+        "averageSearchTime": 0,
+        "searchFailures": 0,
+        "matchedCount": 52.96543209876543
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": -0.17732884399551066,
+          "ci95": [
+            -0.244668911335578,
+            -0.12008978675645345
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -2.0702132435465774,
+          "ci95": [
+            -2.191599166265833,
+            -1.9587219015552346
+          ]
+        },
+        "averageParkingTime": {
+          "mean": -2.738607128538675,
+          "ci95": [
+            -2.9134968435570423,
+            -2.5801848474620623
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": -2.7418326726965527,
+          "ci95": [
+            -2.916410296042474,
+            -2.5843989377451044
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": -2.7402171826296633,
+          "ci95": [
+            -2.912998068314258,
+            -2.580709246609178
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.005611672278338946,
+          "ci95": [
+            -0.014590347923681258,
+            0
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0.02304312970979638,
+          "ci95": [
+            0.009869127785794496,
+            0.0358718935385602
+          ]
+        }
+      }
+    },
+    {
+      "family": "asymmetric",
+      "strategy": "trained",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.094810539254805,
+        "operatingPerVehicle": 10.746705146705166,
+        "averageParkingTime": 7.73752564170123,
+        "averageDetourDistance": 0,
+        "averageSearchTime": 0,
+        "searchFailures": 0,
+        "matchedCount": 52.962139917695474
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": -0.17358772914328463,
+          "ci95": [
+            -0.24392068836513275,
+            -0.11334642723531611
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -2.0941414141414136,
+          "ci95": [
+            -2.220021070493293,
+            -1.9729184303350966
+          ]
+        },
+        "averageParkingTime": {
+          "mean": -2.106114855204294,
+          "ci95": [
+            -2.3156534753680744,
+            -1.910286313085376
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": -2.1028186520086396,
+          "ci95": [
+            -2.3127779995709825,
+            -1.9048214009154685
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": -2.687121678079052,
+          "ci95": [
+            -2.862394771704614,
+            -2.5181783504423767
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.0018705574261129792,
+          "ci95": [
+            -0.010101010101010098,
+            0.004489337822671161
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.0008850408850408752,
+          "ci95": [
+            -0.04359827107049336,
+            0.038455266955267
+          ]
+        }
+      },
+      "fullMinusUntrained": {
+        "rejectionRate": {
+          "mean": 0.0018705574261129825,
+          "ci95": [
+            -0.001496445940890385,
+            0.007856341189674522
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.1251167762278874,
+          "ci95": [
+            -0.18141085457752126,
+            -0.07318376890599124
+          ]
+        }
+      },
+      "fullMinusNoDeparture": {
+        "rejectionRate": {
+          "mean": -0.0018705574261129784,
+          "ci95": [
+            -0.011223344556677893,
+            0.006734006734006748
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.08367644700978032,
+          "ci95": [
+            -0.11667877184543858,
+            -0.04978694350916575
+          ]
+        }
+      }
+    },
+    {
+      "family": "asymmetric",
+      "strategy": "no-departure",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.09668109668091,
+        "operatingPerVehicle": 10.830381593714916,
+        "averageParkingTime": 7.656700284007166,
+        "averageDetourDistance": 0,
+        "averageSearchTime": 0,
+        "searchFailures": 0,
+        "matchedCount": 52.96049382716049
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": -0.17171717171717166,
+          "ci95": [
+            -0.2413019079685747,
+            -0.11111111111111113
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -2.0104649671316337,
+          "ci95": [
+            -2.1398065977232648,
+            -1.8732525653358985
+          ]
+        },
+        "averageParkingTime": {
+          "mean": -2.1869402128983433,
+          "ci95": [
+            -2.4385827401068103,
+            -1.916118525068882
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": -2.1861795735954046,
+          "ci95": [
+            -2.441903806409669,
+            -1.913857107897016
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": -2.607179006107823,
+          "ci95": [
+            -2.7842910976598914,
+            -2.433712698261237
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -9.251858538542971e-19,
+          "ci95": [
+            -0.010101010101010104,
+            0.010101010101010109
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0.08279140612473947,
+          "ci95": [
+            0.026134199134199145,
+            0.14029677729677717
+          ]
+        }
+      }
+    },
+    {
+      "family": "asymmetric",
+      "strategy": "untrained",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.092939981828685,
+        "operatingPerVehicle": 10.871821922933034,
+        "averageParkingTime": 7.609159067182785,
+        "averageDetourDistance": 0,
+        "averageSearchTime": 0,
+        "searchFailures": 0,
+        "matchedCount": 52.962139917695474
+      },
+      "pairedVsSearch": {
+        "rejectionRate": {
+          "mean": -0.1754582865693976,
+          "ci95": [
+            -0.2450523756079312,
+            -0.11559109614665174
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -1.9690246379135266,
+          "ci95": [
+            -2.091665758110204,
+            -1.851318876596654
+          ]
+        },
+        "averageParkingTime": {
+          "mean": -2.2344814297227473,
+          "ci95": [
+            -2.514588814567467,
+            -1.9295458562904217
+          ]
+        },
+        "matchedParkingDelta": {
+          "mean": -2.232203487865939,
+          "ci95": [
+            -2.5133589709985573,
+            -1.9236311426886166
+          ]
+        },
+        "matchedDistanceDelta": {
+          "mean": -2.600815615366982,
+          "ci95": [
+            -2.7714876832377655,
+            -2.4277747467209285
+          ]
+        }
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.003741114852225962,
+          "ci95": [
+            -0.011597456041900482,
+            0.0014964459408903857
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0.12423173534284651,
+          "ci95": [
+            0.08964864250975359,
+            0.16014079952968843
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -17,6 +17,7 @@ const rows = csv.map((line) =>
 const summaries = [];
 for (const family of FAMILIES)
   for (const strategy of [
+    "search",
     "nearest",
     "random",
     "rule",
@@ -28,13 +29,20 @@ for (const family of FAMILIES)
       (r) => r.family === family && r.strategy === strategy,
     );
     const metrics = Object.fromEntries(
-      ["rejectionRate", "operatingPerVehicle"].map((key) => [
-        key,
-        mean(group.map((r) => Number(r[key]))),
-      ]),
+      [
+        "rejectionRate",
+        "operatingPerVehicle",
+        "averageParkingTime",
+        "averageDetourDistance",
+        "averageSearchTime",
+        "searchFailures",
+        "matchedCount",
+      ].map((key) => [key, mean(group.map((r) => Number(r[key])))]),
     );
     const differences = (reference: string, key: string) => {
-      const learning = ["nearest", "random", "rule"].includes(strategy)
+      const learning = ["search", "nearest", "random", "rule"].includes(
+        strategy,
+      )
         ? [-1]
         : LEARNING_SEEDS;
       const referenceMap = new Map(
@@ -64,7 +72,7 @@ for (const family of FAMILIES)
                         r.count,
                         r.noise,
                         r.trafficSeed,
-                        reference === "nearest" ? -1 : seed,
+                        ["nearest", "search"].includes(reference) ? -1 : seed,
                       ].join("|"),
                     )![key],
                   ),
@@ -79,6 +87,15 @@ for (const family of FAMILIES)
       strategy,
       conditions: 27,
       metrics,
+      pairedVsSearch: Object.fromEntries(
+        [
+          "rejectionRate",
+          "operatingPerVehicle",
+          "averageParkingTime",
+          "matchedParkingDelta",
+          "matchedDistanceDelta",
+        ].map((k) => [k, differences("search", k)]),
+      ),
       pairedVsNearest: Object.fromEntries(
         ["rejectionRate", "operatingPerVehicle"].map((k) => [
           k,
@@ -115,7 +132,7 @@ await writeFile(
   JSON.stringify(result, null, 2) + "\n",
 );
 await writeFile(
-  "experiments/v0.4/overall.json",
+  "experiments/v0.5/overall.json",
   JSON.stringify(result, null, 2) + "\n",
 );
 console.log(summaries.filter((s) => s.strategy === "trained"));

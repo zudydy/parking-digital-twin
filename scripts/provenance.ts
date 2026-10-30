@@ -19,6 +19,7 @@ const paths = [
   "public/data/incheon-history.json",
   "public/research/analysis.json",
   "public/research/overall.json",
+  "public/research/search-sensitivity.json",
   "data/observations/incheon.jsonl",
   "vite.config.ts",
   ...(await files("public/research/training")),
@@ -55,6 +56,6 @@ const body =
     null,
     2,
   ) + "\n";
-await writeFile("experiments/v0.4/provenance.json", body);
+await writeFile("experiments/v0.5/provenance.json", body);
 await writeFile("public/research/provenance.json", body);
 console.log(`Recorded ${paths.length} source and result hashes`);

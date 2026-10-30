@@ -1,4 +1,4 @@
-import { withSearchCirculation } from "./twin/search.js";
+import { SEARCH_MODEL, withSearchCirculation } from "./twin/search.js";
 import { SearchComparison } from "./ui/SearchComparison.js";
 import { ResearchPanel } from "./ui/ResearchPanel.js";
 import { DecisionPanel } from "./ui/DecisionPanel.js";
@@ -432,7 +432,12 @@ export function App() {
                                 training: activePolicy.training,
                               }
                             : null,
-                        model: `one-way-${scenario.layout.spots.length}-v1`,
+                        model: SEARCH_MODEL,
+                        comparison: {
+                          reference: left.strategy,
+                          guidance: right.strategy,
+                          searchOrder: scenario.searchOrder ?? "distributed",
+                        },
                         results: runs.map(({ frames: _, ...r }) => r),
                       },
                       null,

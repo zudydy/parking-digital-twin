@@ -29,9 +29,9 @@ const headers = csv.shift()!.split(",");
 const rows = csv.map((line) =>
   Object.fromEntries(line.split(",").map((v, i) => [headers[i]!, v])),
 );
-assert.equal(rows.length, 29160);
+assert.equal(rows.length, 31590);
 assert.equal(report.runs, rows.length);
-assert.equal(report.summaries.length, 486);
+assert.equal(report.summaries.length, 567);
 const groups = new Map<string, typeof rows>();
 for (const row of rows) {
   const key = [
@@ -47,7 +47,7 @@ for (const row of rows) {
 }
 assert.equal(groups.size, 2430);
 for (const group of groups.values()) {
-  assert.equal(group.length, 12);
+  assert.equal(group.length, 13);
   assert.equal(new Set(group.map((r) => r.inputHash)).size, 1);
 }
 const policies = new Map();
@@ -76,9 +76,9 @@ for (const family of FAMILIES)
       for (const row of group) {
         assert.equal(row.inputHash, hash);
         let allocation;
-        if (["nearest", "random", "rule"].includes(row.strategy!))
+        if (["search", "nearest", "random", "rule"].includes(row.strategy!))
           allocation = baseline(
-            row.strategy as "nearest" | "random" | "rule",
+            row.strategy as "search" | "nearest" | "random" | "rule",
             seed,
           );
         else if (row.strategy === "untrained") {
@@ -100,7 +100,38 @@ for (const family of FAMILIES)
             },
           };
         } else allocation = rlStrategy(policies.get(row.policyId)!);
-        const metrics = simulateTwin(scenario, allocation, false).metrics;
+        const result = simulateTwin(scenario, allocation, false);
+        const metrics = result.metrics;
+        const search = simulateTwin(scenario, baseline("search"), false);
+        const byId = new Map(
+          search.trips
+            .filter((t) => !t.initial && t.parkedAt !== null)
+            .map((t) => [t.vehicleId, t]),
+        );
+        const matched = result.trips.filter(
+          (t) => !t.initial && t.parkedAt !== null && byId.has(t.vehicleId),
+        );
+        assert.equal(matched.length, Number(row.matchedCount));
+        const mean = (v: number[]) => v.reduce((a, b) => a + b, 0) / v.length;
+        assert.ok(
+          Math.abs(
+            mean(
+              matched.map(
+                (t) =>
+                  t.parkedAt! -
+                  t.arrivalTime -
+                  (byId.get(t.vehicleId)!.parkedAt! - t.arrivalTime),
+              ),
+            ) - Number(row.matchedParkingDelta),
+          ) < 1e-8,
+        );
+        assert.ok(
+          Math.abs(
+            mean(
+              matched.map((t) => t.distance - byId.get(t.vehicleId)!.distance),
+            ) - Number(row.matchedDistanceDelta),
+          ) < 1e-8,
+        );
         for (const [key, value] of Object.entries(metrics))
           assert.ok(
             Math.abs(value - Number(row[key])) < 1e-8,

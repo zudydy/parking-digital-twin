@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "objective": "service-first-v2",
   "episodes": 200,
   "learningSeeds": [
@@ -306,5 +306,16 @@
       "validationRejectionRate": 19.37950937950938,
       "validationOperatingPerVehicle": 10.779701779701782
     }
-  ]
+  ],
+  "evaluationModel": "local-systematic-v1",
+  "comparisonReference": "search",
+  "searchProtocol": {
+    "visibility": "current bay only",
+    "order": "seeded starting aisle, then systematic cyclic sweep",
+    "maxAisles": 4,
+    "admission": "common on-site vehicle count limited to bay capacity; no remote location info to drivers",
+    "reservation": "guided: at entrance; search: on local discovery",
+    "loop": "shared physical perimeter return, no artificial time penalty"
+  },
+  "policyReuse": "v0.4 guided policies retained; added positive return cycle leaves all guided paths and observations unchanged"
 }
