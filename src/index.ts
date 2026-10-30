@@ -1,47 +1,101 @@
 import path from "node:path";
+import { readFile, mkdir, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
+import { parseArgs } from "node:util";
+import { simulateTwin } from "./twin/engine.js";
+import {
+  createScenario,
+  scenarioTypes,
+  type ScenarioType,
+} from "./twin/scenarios.js";
+import { baseline } from "./twin/strategies.js";
+import { scenarioFromCsv } from "./twin/input.js";
+import { parsePolicy, rlStrategy } from "./rl/dqn.js";
 
-import { loadVehiclesCsv } from "./csv.js";
-import { simulateParking, type SimulationResult } from "./simulation.js";
-
-const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
-const defaultCsvPath = path.resolve(currentDirectory, "../data/vehicles.csv");
-
-function printResult(result: SimulationResult): void {
-  console.log("=== 주차장 시뮬레이션 결과 ===");
-  console.log(`총 차량 수: ${result.totalVehicles}대`);
-  console.log(`평균 이동거리: ${result.averageDistance.toFixed(2)}`);
-  console.log(`평균 점유율: ${result.averageOccupancyRate.toFixed(2)}%`);
-  console.log("");
-  console.log("차량별 배정 주차면");
-
-  for (const assignment of result.assignments) {
-    if (assignment.spotId === null) {
-      console.log(
-        `- ${assignment.vehicleId}: 도착 ${assignment.arrivalTime}, 미배정(만차)`,
-      );
-      continue;
-    }
-
-    console.log(
-      `- ${assignment.vehicleId}: 도착 ${assignment.arrivalTime}, ` +
-        `출차 ${assignment.departureTime}, ${assignment.spotId}번 주차면`,
-    );
-  }
-}
-
-async function main(): Promise<void> {
+async function main() {
   const args = process.argv.slice(2);
   if (args[0] === "--") args.shift();
-  const csvPath = args[0]
-    ? path.resolve(process.cwd(), args[0])
-    : defaultCsvPath;
-  const vehicles = await loadVehiclesCsv(csvPath);
-  printResult(simulateParking(vehicles));
+  const { values, positionals } = parseArgs({
+    args,
+    allowPositionals: true,
+    options: {
+      scenario: { type: "string", default: "cinema" },
+      strategy: { type: "string", default: "nearest" },
+      seed: { type: "string", default: "42" },
+      count: { type: "string", default: "70" },
+      uncertainty: { type: "string", default: "6" },
+      output: { type: "string" },
+      help: { type: "boolean", short: "h" },
+    },
+  });
+  if (values.help) {
+    console.log(
+      "pnpm start -- [vehicles.csv] [--scenario office|cinema|mall] [--strategy nearest|random|rule|rl] [--seed 42] [--count 70] [--uncertainty 6] [--output result.json]",
+    );
+    return;
+  }
+  if (positionals.length > 1) throw new Error("CSV 경로는 하나만 지정하세요.");
+  if (!scenarioTypes.includes(values.scenario as ScenarioType))
+    throw new Error("지원하는 시나리오: office, cinema, mall");
+  if (!["nearest", "random", "rule", "rl"].includes(values.strategy!))
+    throw new Error("지원하는 전략: nearest, random, rule, rl");
+  const seed = Number(values.seed);
+  if (!Number.isSafeInteger(seed)) throw new Error("seed는 정수여야 합니다.");
+  const scenario = positionals[0]
+    ? scenarioFromCsv(
+        await readFile(path.resolve(positionals[0]), "utf8"),
+        path.basename(positionals[0]),
+        seed,
+      )
+    : createScenario(
+        values.scenario as ScenarioType,
+        seed,
+        Number(values.count),
+        Number(values.uncertainty),
+      );
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+  const strategy =
+    values.strategy === "rl"
+      ? rlStrategy(
+          parsePolicy(
+            JSON.parse(
+              await readFile(path.join(root, "public/policy.json"), "utf8"),
+            ),
+          ),
+        )
+      : baseline(values.strategy as "nearest" | "random" | "rule", seed);
+  const result = simulateTwin(scenario, strategy, false),
+    m = result.metrics;
+  console.log(`=== ${scenario.title} / ${strategy.id} / seed ${seed} ===`);
+  console.log(
+    `총 ${m.totalVehicles}대 · 배정 ${m.assigned}대 · 미배정 ${m.rejected}대 (${m.rejectionRate.toFixed(2)}%)`,
+  );
+  console.log(
+    `평균 주차 ${m.averageParkingTime.toFixed(2)} tick · 평균 출차 ${m.averageExitTime.toFixed(2)} tick`,
+  );
+  console.log(
+    `평균 총 이동거리 ${m.averageDistance.toFixed(2)} · 누적 지연 ${m.totalDelay} tick`,
+  );
+  console.log(
+    `시간가중 점유율 ${m.averageOccupancyRate.toFixed(2)}% · 누적 비용 ${m.cost}`,
+  );
+  if (values.output) {
+    const output = path.resolve(values.output);
+    await mkdir(path.dirname(output), { recursive: true });
+    await writeFile(
+      output,
+      JSON.stringify(
+        { schemaVersion: 1, input: scenario, ...result },
+        null,
+        2,
+      ) + "\n",
+    );
+    console.log(`결과 저장: ${output}`);
+  }
 }
-
 main().catch((error: unknown) => {
-  const message = error instanceof Error ? error.message : String(error);
-  console.error(`오류: ${message}`);
+  console.error(
+    `오류: ${error instanceof Error ? error.message : String(error)}`,
+  );
   process.exitCode = 1;
 });

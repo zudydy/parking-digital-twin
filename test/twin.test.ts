@@ -59,6 +59,45 @@ describe("통로 기반 디지털 트윈", () => {
       20,
     );
   });
+  it("같은 시각에 자리를 떠난 차량의 주차면을 새 차량이 재사용한다", () => {
+    const scenario = single();
+    scenario.vehicles = Array.from({ length: 20 }, (_, i) => ({
+      vehicleId: String(i),
+      arrivalTime: 0,
+      duration: 1,
+      estimatedDeparture: 20,
+    }));
+    scenario.vehicles.push({
+      vehicleId: "NEW",
+      arrivalTime: 4,
+      duration: 1,
+      estimatedDeparture: 10,
+    });
+    const result = simulateTwin(scenario, baseline("nearest"));
+    assert.equal(result.trips.find((t) => t.vehicleId === "0")!.leftSpotAt, 4);
+    assert.equal(result.trips.find((t) => t.vehicleId === "NEW")!.spotId, 1);
+  });
+  it("모든 전이 보상에 출차까지의 지연과 미배정 비용이 보존된다", () => {
+    const environment = new TwinEnvironment(
+      createScenario("office", 818, 110),
+      false,
+    );
+    let reward = 0;
+    const strategy = baseline("nearest");
+    while (!environment.done)
+      reward += environment.step(
+        strategy.choose(environment.observation()!),
+      ).reward;
+    const result = environment.result("nearest");
+    assert.ok(result.metrics.rejected > 0);
+    assert.ok(Math.abs(reward * -20 - result.metrics.cost) < 1e-8);
+    assert.equal(
+      result.metrics.cost,
+      result.metrics.assigned * 12 +
+        result.metrics.totalDelay +
+        result.metrics.rejected * 30,
+    );
+  });
   it("관찰값에 실제 출차시간이나 미래 수요를 노출하지 않는다", () => {
     const scenario = single();
     const left = new TwinEnvironment(scenario, false);

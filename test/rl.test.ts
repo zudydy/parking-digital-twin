@@ -44,6 +44,23 @@ describe("DQN 학습과 추론", () => {
     );
     assert.throws(() => parsePolicy({}), /정책/);
   });
+  it("bootstrap target도 사용 불가 행동의 Q값을 제외한다", () => {
+    const network = new QNetwork(1),
+      target = new QNetwork(2);
+    for (const model of [network, target])
+      for (const key of ["w1", "b1", "w2", "b2"] as const)
+        model.weights[key].fill(0);
+    target.weights.b2[19] = 1000;
+    const state = Array(INPUTS).fill(0);
+    const loss = network.train(
+      [{ state, action: 0, reward: 0, next: state, available: [1] }],
+      target,
+      0.98,
+      0.0003,
+    );
+    assert.equal(loss, 0);
+    assert.equal(network.forward(state).q[0], 0);
+  });
   it("환경 관찰과 행동 인코딩이 끝까지 유효하다", () => {
     const environment = new TwinEnvironment(
       createScenario("cinema", 333),
