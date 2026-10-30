@@ -1,0 +1,29 @@
+{
+  "selection": "validation only; test results never used",
+  "policies": {
+    "policy.json": {
+      "id": "standard-full-23",
+      "sha256": "07591be61b2bc737d6ec6c6a78960d80071f2f3dfbf9344ea4ee483fe3e9d5fa"
+    },
+    "policy-no-departure.json": {
+      "id": "standard-no-departure-11",
+      "sha256": "1edf11720f083334bb4be005e5493905deb42ce584199bee43f1399fc03d8de9"
+    },
+    "policy-airport.json": {
+      "id": "airport-full-47",
+      "sha256": "149b06a039823a1131260922abea650fce2c753d7d13fec23a9d7abcb19decb7"
+    },
+    "policy-airport-no-departure.json": {
+      "id": "airport-no-departure-23",
+      "sha256": "d5cd1e84862dc202e436f3c331a54d118e2234f34f7838b10e55514b0c1d1b77"
+    },
+    "policy-asymmetric.json": {
+      "id": "asymmetric-full-23",
+      "sha256": "3ee62e95f64fe5cc3e733dcb3c5d3d1ca44ccf458cdbae9b463e2bc3f247c4ac"
+    },
+    "policy-asymmetric-no-departure.json": {
+      "id": "asymmetric-no-departure-23",
+      "sha256": "077a522225fbd9088743e4e7102b078a76515aec4089fdcdba9ba7647c58874b"
+    }
+  }
+}

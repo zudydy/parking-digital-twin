@@ -1,0 +1,310 @@
+{
+  "schemaVersion": 2,
+  "objective": "service-first-v2",
+  "episodes": 200,
+  "learningSeeds": [
+    11,
+    23,
+    47
+  ],
+  "testSeeds": [
+    90001,
+    90002,
+    90003,
+    90004,
+    90005,
+    90006,
+    90007,
+    90008,
+    90009,
+    90010,
+    90011,
+    90012,
+    90013,
+    90014,
+    90015,
+    90016,
+    90017,
+    90018,
+    90019,
+    90020,
+    90021,
+    90022,
+    90023,
+    90024,
+    90025,
+    90026,
+    90027,
+    90028,
+    90029,
+    90030
+  ],
+  "noiseLevels": [
+    0,
+    6,
+    20
+  ],
+  "demandLevels": {
+    "standard": [
+      35,
+      70,
+      110
+    ],
+    "airport": [
+      100,
+      180,
+      260
+    ],
+    "asymmetric": [
+      35,
+      70,
+      110
+    ]
+  },
+  "snapshot": {
+    "schemaVersion": 1,
+    "sourceUrl": "https://www.airport.kr/ap_ko/964/subview.do",
+    "sourceName": "인천국제공항공사 공식 주차장 혼잡도",
+    "updatedAt": "2026-10-30T20:27:23+09:00",
+    "fetchedAt": "2026-10-30T11:29:22.256Z",
+    "floors": [
+      {
+        "id": "ground",
+        "name": "지상 1층",
+        "available": 264,
+        "occupancyPercent": 74
+      },
+      {
+        "id": "b1",
+        "name": "지하 1층",
+        "available": 126,
+        "occupancyPercent": 75
+      },
+      {
+        "id": "b2",
+        "name": "지하 2층",
+        "available": 357,
+        "occupancyPercent": 73
+      }
+    ]
+  },
+  "selection": "Validation only. Every learning seed is retained and evaluated; no selection on final tests.",
+  "entries": [
+    {
+      "id": "standard-full-11",
+      "family": "standard",
+      "featureMode": "full",
+      "seed": 11,
+      "episodes": 200,
+      "sha256": "1b639ac523693b9196eb325833457a34a06dce7700b4806f27173bfa75f7b8cf",
+      "policyPath": "experiments/v0.4/policies/standard-full-11.json",
+      "logUrl": "research/training/standard-full-11.json",
+      "validationRejectionRate": 19.37950937950938,
+      "validationOperatingPerVehicle": 12.015247715247718
+    },
+    {
+      "id": "standard-full-23",
+      "family": "standard",
+      "featureMode": "full",
+      "seed": 23,
+      "episodes": 200,
+      "sha256": "07591be61b2bc737d6ec6c6a78960d80071f2f3dfbf9344ea4ee483fe3e9d5fa",
+      "policyPath": "experiments/v0.4/policies/standard-full-23.json",
+      "logUrl": "research/training/standard-full-23.json",
+      "validationRejectionRate": 19.37950937950938,
+      "validationOperatingPerVehicle": 11.92929292929293
+    },
+    {
+      "id": "standard-full-47",
+      "family": "standard",
+      "featureMode": "full",
+      "seed": 47,
+      "episodes": 200,
+      "sha256": "be05db943dcf55c7fcf19767293e6b828c5d980c5e860a8468bcd2f09e8d17fa",
+      "policyPath": "experiments/v0.4/policies/standard-full-47.json",
+      "logUrl": "research/training/standard-full-47.json",
+      "validationRejectionRate": 19.37950937950938,
+      "validationOperatingPerVehicle": 11.972150072150074
+    },
+    {
+      "id": "standard-no-departure-11",
+      "family": "standard",
+      "featureMode": "no-departure",
+      "seed": 11,
+      "episodes": 200,
+      "sha256": "1edf11720f083334bb4be005e5493905deb42ce584199bee43f1399fc03d8de9",
+      "policyPath": "experiments/v0.4/policies/standard-no-departure-11.json",
+      "logUrl": "research/training/standard-no-departure-11.json",
+      "validationRejectionRate": 19.37950937950938,
+      "validationOperatingPerVehicle": 11.942616642616644
+    },
+    {
+      "id": "standard-no-departure-23",
+      "family": "standard",
+      "featureMode": "no-departure",
+      "seed": 23,
+      "episodes": 200,
+      "sha256": "51d73fa6798a2792c95816496e22ab2f36b760bf1c1b7e8fa129dbd18683c27d",
+      "policyPath": "experiments/v0.4/policies/standard-no-departure-23.json",
+      "logUrl": "research/training/standard-no-departure-23.json",
+      "validationRejectionRate": 19.37950937950938,
+      "validationOperatingPerVehicle": 11.978018278018281
+    },
+    {
+      "id": "standard-no-departure-47",
+      "family": "standard",
+      "featureMode": "no-departure",
+      "seed": 47,
+      "episodes": 200,
+      "sha256": "be038c2397704e8c278bfa0d28630f19b38d0ee46d1d4163093dc33ad08c7bd0",
+      "policyPath": "experiments/v0.4/policies/standard-no-departure-47.json",
+      "logUrl": "research/training/standard-no-departure-47.json",
+      "validationRejectionRate": 19.37950937950938,
+      "validationOperatingPerVehicle": 12.054785954785958
+    },
+    {
+      "id": "airport-full-11",
+      "family": "airport",
+      "featureMode": "full",
+      "seed": 11,
+      "episodes": 200,
+      "sha256": "eb34e4528f95efe3f1e70e4d177a90e289b8a74733b4df5c0ef1c5bb00113329",
+      "policyPath": "experiments/v0.4/policies/airport-full-11.json",
+      "logUrl": "research/training/airport-full-11.json",
+      "validationRejectionRate": 17.77587844254511,
+      "validationOperatingPerVehicle": 41.82496992719215
+    },
+    {
+      "id": "airport-full-23",
+      "family": "airport",
+      "featureMode": "full",
+      "seed": 23,
+      "episodes": 200,
+      "sha256": "cbd7b69c59531cd0d46f87996fb3ee7184c4ea899dac3a231fd501903bf76e7b",
+      "policyPath": "experiments/v0.4/policies/airport-full-23.json",
+      "logUrl": "research/training/airport-full-23.json",
+      "validationRejectionRate": 17.790123456790123,
+      "validationOperatingPerVehicle": 41.686321620766066
+    },
+    {
+      "id": "airport-full-47",
+      "family": "airport",
+      "featureMode": "full",
+      "seed": 47,
+      "episodes": 200,
+      "sha256": "149b06a039823a1131260922abea650fce2c753d7d13fec23a9d7abcb19decb7",
+      "policyPath": "experiments/v0.4/policies/airport-full-47.json",
+      "logUrl": "research/training/airport-full-47.json",
+      "validationRejectionRate": 17.733143399810064,
+      "validationOperatingPerVehicle": 41.74963279518834
+    },
+    {
+      "id": "airport-no-departure-11",
+      "family": "airport",
+      "featureMode": "no-departure",
+      "seed": 11,
+      "episodes": 200,
+      "sha256": "b24c95b88c1b9013550922bbcaa15e1bdd02c0c050b8c3b564929f06daee1c03",
+      "policyPath": "experiments/v0.4/policies/airport-no-departure-11.json",
+      "logUrl": "research/training/airport-no-departure-11.json",
+      "validationRejectionRate": 17.76321620766065,
+      "validationOperatingPerVehicle": 41.72174738841406
+    },
+    {
+      "id": "airport-no-departure-23",
+      "family": "airport",
+      "featureMode": "no-departure",
+      "seed": 23,
+      "episodes": 200,
+      "sha256": "d5cd1e84862dc202e436f3c331a54d118e2234f34f7838b10e55514b0c1d1b77",
+      "policyPath": "experiments/v0.4/policies/airport-no-departure-23.json",
+      "logUrl": "research/training/airport-no-departure-23.json",
+      "validationRejectionRate": 17.747388414055084,
+      "validationOperatingPerVehicle": 41.88362773029439
+    },
+    {
+      "id": "airport-no-departure-47",
+      "family": "airport",
+      "featureMode": "no-departure",
+      "seed": 47,
+      "episodes": 200,
+      "sha256": "8a9b5718eb124cf5550af52404b2ca56bbacadc3587585775935fe97e6eb73e8",
+      "policyPath": "experiments/v0.4/policies/airport-no-departure-47.json",
+      "logUrl": "research/training/airport-no-departure-47.json",
+      "validationRejectionRate": 17.796454574232353,
+      "validationOperatingPerVehicle": 41.75551123773345
+    },
+    {
+      "id": "asymmetric-full-11",
+      "family": "asymmetric",
+      "featureMode": "full",
+      "seed": 11,
+      "episodes": 200,
+      "sha256": "5b23c052612662c144bf76fcd65ff02f70168e76947a4a1a72ef176efa772567",
+      "policyPath": "experiments/v0.4/policies/asymmetric-full-11.json",
+      "logUrl": "research/training/asymmetric-full-11.json",
+      "validationRejectionRate": 19.37950937950938,
+      "validationOperatingPerVehicle": 10.730495430495433
+    },
+    {
+      "id": "asymmetric-full-23",
+      "family": "asymmetric",
+      "featureMode": "full",
+      "seed": 23,
+      "episodes": 200,
+      "sha256": "3ee62e95f64fe5cc3e733dcb3c5d3d1ca44ccf458cdbae9b463e2bc3f247c4ac",
+      "policyPath": "experiments/v0.4/policies/asymmetric-full-23.json",
+      "logUrl": "research/training/asymmetric-full-23.json",
+      "validationRejectionRate": 19.37950937950938,
+      "validationOperatingPerVehicle": 10.66007696007696
+    },
+    {
+      "id": "asymmetric-full-47",
+      "family": "asymmetric",
+      "featureMode": "full",
+      "seed": 47,
+      "episodes": 200,
+      "sha256": "1de7d65347eb705a02cfb30abd5e1e48eaa81f99cdc13d3b246dfa1d0d16007f",
+      "policyPath": "experiments/v0.4/policies/asymmetric-full-47.json",
+      "logUrl": "research/training/asymmetric-full-47.json",
+      "validationRejectionRate": 19.37950937950938,
+      "validationOperatingPerVehicle": 10.754497354497355
+    },
+    {
+      "id": "asymmetric-no-departure-11",
+      "family": "asymmetric",
+      "featureMode": "no-departure",
+      "seed": 11,
+      "episodes": 200,
+      "sha256": "543551637b7df950aa39b30799bbe2adf0f6e1f0ea2da63f95d4b9818238af00",
+      "policyPath": "experiments/v0.4/policies/asymmetric-no-departure-11.json",
+      "logUrl": "research/training/asymmetric-no-departure-11.json",
+      "validationRejectionRate": 19.37950937950938,
+      "validationOperatingPerVehicle": 10.77041847041847
+    },
+    {
+      "id": "asymmetric-no-departure-23",
+      "family": "asymmetric",
+      "featureMode": "no-departure",
+      "seed": 23,
+      "episodes": 200,
+      "sha256": "077a522225fbd9088743e4e7102b078a76515aec4089fdcdba9ba7647c58874b",
+      "policyPath": "experiments/v0.4/policies/asymmetric-no-departure-23.json",
+      "logUrl": "research/training/asymmetric-no-departure-23.json",
+      "validationRejectionRate": 19.37950937950938,
+      "validationOperatingPerVehicle": 10.752621452621453
+    },
+    {
+      "id": "asymmetric-no-departure-47",
+      "family": "asymmetric",
+      "featureMode": "no-departure",
+      "seed": 47,
+      "episodes": 200,
+      "sha256": "ff071293914e02078e6d1405b40e5608f0afd715d3020fc4bc70ed268b3d7df3",
+      "policyPath": "experiments/v0.4/policies/asymmetric-no-departure-47.json",
+      "logUrl": "research/training/asymmetric-no-departure-47.json",
+      "validationRejectionRate": 19.37950937950938,
+      "validationOperatingPerVehicle": 10.779701779701782
+    }
+  ]
+}

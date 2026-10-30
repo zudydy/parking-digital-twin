@@ -61,6 +61,9 @@ for (const type of cases)
   }
 const keys = [
   "cost",
+  "operatingCost",
+  "averageScheduledExitTime",
+  "averageScheduleDelay",
   "averageParkingTime",
   "averageExitTime",
   "averageDistance",
@@ -105,13 +108,15 @@ const summary = cases.flatMap((scenario) =>
     };
   }),
 );
-await mkdir("experiments", { recursive: true });
+await mkdir("experiments/v0.4", { recursive: true });
 await writeFile(
   airportMode
-    ? "experiments/evaluation-airport.json"
-    : "experiments/evaluation.json",
+    ? "experiments/v0.4/evaluation-airport.json"
+    : "experiments/v0.4/evaluation.json",
   JSON.stringify(
     {
+      objective: "service-first-v2",
+      schemaVersion: 2,
       policySha256: createHash("sha256").update(raw).digest("hex"),
       evaluationSeeds: [90001, 90000 + repetitions],
       vehicleCount: airportMode ? 180 : 70,
@@ -128,8 +133,8 @@ await writeFile(
 const headers = Object.keys(rows[0]!) as (keyof (typeof rows)[number])[];
 await writeFile(
   airportMode
-    ? "experiments/evaluation-airport.csv"
-    : "experiments/evaluation.csv",
+    ? "experiments/v0.4/evaluation-airport.csv"
+    : "experiments/v0.4/evaluation.csv",
   [
     headers.join(","),
     ...rows.map((row) => headers.map((key) => row[key]).join(",")),
