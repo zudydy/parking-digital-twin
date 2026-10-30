@@ -36,6 +36,7 @@ export class TwinEnvironment {
   private occupiedArea = 0;
   private peakQueue = 0;
   private sequence = 0;
+  private lastEntry = new Map<string, number>();
   private totalCost = 0;
   private record: boolean;
   private inbound = new Map<number, Edge[]>();
@@ -57,6 +58,56 @@ export class TwinEnvironment {
         spot.id,
         shortestPath(scenario.layout, spot.node, scenario.layout.exit),
       );
+    }
+    for (const initial of scenario.initialParked ?? []) {
+      if (
+        this.reserved.has(initial.spotId) ||
+        !this.outbound.has(initial.spotId) ||
+        scenario.vehicles.some((v) => v.vehicleId === initial.vehicleId) ||
+        this.trips.some((t) => t.vehicleId === initial.vehicleId) ||
+        !Number.isSafeInteger(initial.departureRequest) ||
+        initial.departureRequest < 1 ||
+        initial.departureRequest >= MAX_TICKS / 2 ||
+        !Number.isFinite(initial.estimatedDeparture)
+      )
+        throw new Error("초기 주차 상태가 유효하지 않습니다.");
+      const node = scenario.layout.spots.find(
+        (s) => s.id === initial.spotId,
+      )!.node;
+      const trip: Trip = {
+        initial: true,
+        vehicleId: initial.vehicleId,
+        arrivalTime: 0,
+        estimatedDeparture: initial.estimatedDeparture,
+        spotId: initial.spotId,
+        phase: "parked",
+        node,
+        route: this.outbound.get(initial.spotId)!.map((e) => e.id),
+        segments: [],
+        parkedAt: 0,
+        departureRequestedAt: initial.departureRequest,
+        leftSpotAt: null,
+        exitedAt: null,
+        waitingTicks: 0,
+        distance: 0,
+      };
+      const demand: Demand = {
+        vehicleId: initial.vehicleId,
+        arrivalTime: 0,
+        duration: initial.departureRequest,
+        estimatedDeparture: initial.estimatedDeparture,
+        departureRequest: initial.departureRequest,
+      };
+      const runtime: Runtime = {
+        trip,
+        demand,
+        path: this.outbound.get(initial.spotId)!,
+        index: 0,
+      };
+      this.runtimes.push(runtime);
+      this.trips.push(trip);
+      this.reserved.set(initial.spotId, runtime);
+      this.occupied.add(initial.spotId);
     }
     this.prepareDecision();
   }
@@ -92,7 +143,9 @@ export class TwinEnvironment {
           !Number.isSafeInteger(e.ticks) ||
           e.ticks < 1 ||
           !Number.isSafeInteger(e.capacity) ||
-          e.capacity < 1,
+          e.capacity < 1 ||
+          (e.headway !== undefined &&
+            (!Number.isSafeInteger(e.headway) || e.headway < 1)),
       )
     )
       throw new Error("통로 시간과 용량은 양의 정수여야 합니다.");
@@ -126,6 +179,15 @@ export class TwinEnvironment {
   observation(): Observation | null {
     const vehicle = this.ordered[this.cursor];
     if (!vehicle) return null;
+    const zones = new Map(
+      this.scenario.layout.spots.map((s) => [s.id, s.zone]),
+    );
+    const queueCounts = new Map<string, number>();
+    for (const r of this.runtimes)
+      if (r.queuedAt !== undefined && r.path[r.index]) {
+        const id = r.path[r.index]!.id;
+        queueCounts.set(id, (queueCounts.get(id) ?? 0) + 1);
+      }
     return {
       time: this.time,
       estimatedDeparture: vehicle.estimatedDeparture,
@@ -135,16 +197,13 @@ export class TwinEnvironment {
         const edgeIds = new Set(
           [...path, ...this.outbound.get(spot.id)!].map((e) => e.id),
         );
-        const queue = this.runtimes.filter(
-          (r) =>
-            r.queuedAt !== undefined &&
-            r.path[r.index] &&
-            edgeIds.has(r.path[r.index]!.id),
-        ).length;
+        const queue = [...edgeIds].reduce(
+          (sum, id) => sum + (queueCounts.get(id) ?? 0),
+          0,
+        );
         const departurePressure = [...this.reserved.values()].filter(
           (r) =>
-            this.scenario.layout.spots.find((s) => s.id === r.trip.spotId)
-              ?.zone === spot.zone &&
+            zones.get(r.trip.spotId!) === spot.zone &&
             Math.abs(
               r.demand.estimatedDeparture - vehicle.estimatedDeparture,
             ) <= 8,
@@ -297,12 +356,18 @@ export class TwinEnvironment {
       );
     for (const r of queued) {
       const edge = r.path[r.index]!;
-      if ((used.get(edge.id) ?? 0) >= edge.capacity) continue;
+      if (
+        (used.get(edge.id) ?? 0) >= edge.capacity ||
+        (edge.headway !== undefined &&
+          this.time - (this.lastEntry.get(edge.id) ?? -Infinity) < edge.headway)
+      )
+        continue;
       if (r.trip.phase === "outbound" && r.trip.leftSpotAt === null) {
         r.trip.leftSpotAt = this.time;
         this.reserved.delete(r.trip.spotId!);
         this.occupied.delete(r.trip.spotId!);
       }
+      this.lastEntry.set(edge.id, this.time);
       r.active = { edge, end: this.time + edge.ticks };
       r.queuedAt = undefined;
       r.trip.segments.push({
@@ -325,7 +390,7 @@ export class TwinEnvironment {
       time: this.time,
       occupied: [...this.occupied],
       reserved: [...this.reserved.keys()],
-      arrived: this.trips.length,
+      arrived: this.trips.filter((t) => !t.initial).length,
       rejected: this.trips.filter((t) => t.spotId === null).length,
       vehicles: this.runtimes
         .filter((r) => r.trip.phase !== "exited")
@@ -357,7 +422,8 @@ export class TwinEnvironment {
   }
   result(strategy: string): TwinResult {
     if (!this.done) throw new Error("시뮬레이션이 아직 완료되지 않았습니다.");
-    const assigned = this.trips.filter((t) => t.spotId !== null);
+    const demandTrips = this.trips.filter((t) => !t.initial);
+    const assigned = demandTrips.filter((t) => t.spotId !== null);
     const mean = (get: (trip: Trip) => number) =>
       assigned.length
         ? assigned.reduce((sum, trip) => sum + get(trip), 0) / assigned.length
@@ -369,16 +435,16 @@ export class TwinEnvironment {
       trips: this.trips,
       frames: this.frames,
       metrics: {
-        totalVehicles: this.trips.length,
+        totalVehicles: demandTrips.length,
         assigned: assigned.length,
-        rejected: this.trips.length - assigned.length,
-        rejectionRate: this.trips.length
-          ? ((this.trips.length - assigned.length) / this.trips.length) * 100
+        rejected: demandTrips.length - assigned.length,
+        rejectionRate: demandTrips.length
+          ? ((demandTrips.length - assigned.length) / demandTrips.length) * 100
           : 0,
         averageParkingTime: mean((t) => t.parkedAt! - t.arrivalTime),
         averageExitTime: mean((t) => t.exitedAt! - t.departureRequestedAt!),
         averageDistance: mean((t) => t.distance),
-        totalDelay: assigned.reduce((sum, t) => sum + t.waitingTicks, 0),
+        totalDelay: this.trips.reduce((sum, t) => sum + t.waitingTicks, 0),
         averageOccupancyRate:
           (this.occupiedArea /
             (this.scenario.observationEnd *

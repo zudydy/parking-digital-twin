@@ -1,6 +1,6 @@
 {
   "name": "parking-digital-twin",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "강화학습 기반 주차 공간 할당과 통로 혼잡을 비교하는 디지털 트윈 플랫폼",
   "type": "module",
@@ -14,13 +14,17 @@
     "typecheck": "tsc --noEmit",
     "train": "node --import tsx scripts/train.ts",
     "evaluate": "node --import tsx scripts/evaluate.ts",
-    "format": "prettier --write src scripts test docs README.md index.html package.json tsconfig.json",
-    "format:check": "prettier --check src scripts test docs README.md index.html package.json tsconfig.json"
+    "format": "prettier --write src server vite.config.ts scripts test docs README.md index.html package.json tsconfig.json",
+    "format:check": "prettier --check src server vite.config.ts scripts test docs README.md index.html package.json tsconfig.json",
+    "refresh:airport": "node --import tsx scripts/refresh-airport.ts",
+    "train:airport": "node --import tsx scripts/train.ts 250 20261030 --airport",
+    "evaluate:airport": "node --import tsx scripts/evaluate.ts 30 --airport"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.186.0",
     "prettier": "3.9.10",
     "tsx": "^4.20.0",
     "typescript": "^5.9.0",
@@ -28,6 +32,7 @@
   },
   "dependencies": {
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "three": "^0.186.1"
   }
 }

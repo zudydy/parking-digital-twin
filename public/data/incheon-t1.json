@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "sourceUrl": "https://www.airport.kr/ap_ko/964/subview.do",
+  "sourceName": "인천국제공항공사 공식 주차장 혼잡도",
+  "updatedAt": "2026-10-30T20:27:23+09:00",
+  "fetchedAt": "2026-10-30T11:29:22.256Z",
+  "floors": [
+    {
+      "id": "ground",
+      "name": "지상 1층",
+      "available": 264,
+      "occupancyPercent": 74
+    },
+    {
+      "id": "b1",
+      "name": "지하 1층",
+      "available": 126,
+      "occupancyPercent": 75
+    },
+    {
+      "id": "b2",
+      "name": "지하 2층",
+      "available": 357,
+      "occupancyPercent": 73
+    }
+  ]
+}

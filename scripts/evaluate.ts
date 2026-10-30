@@ -1,3 +1,6 @@
+import { createAirportScenario } from "../src/twin/airport.js";
+import { validateSnapshot, type FloorId } from "../src/data/incheon.js";
+import type { ScenarioType } from "../src/twin/scenarios.js";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { simulateTwin } from "../src/twin/engine.js";
@@ -5,7 +8,17 @@ import { createScenario, scenarioTypes } from "../src/twin/scenarios.js";
 import { baseline } from "../src/twin/strategies.js";
 import { parsePolicy, rlStrategy } from "../src/rl/dqn.js";
 import type { Metrics } from "../src/twin/model.js";
-const raw = await readFile("public/policy.json", "utf8");
+const airportMode = process.argv.includes("--airport");
+const snapshot = airportMode
+  ? validateSnapshot(
+      JSON.parse(await readFile("public/data/incheon-t1.json", "utf8")),
+    )
+  : null;
+const cases = airportMode ? ["ground", "b1", "b2"] : [...scenarioTypes];
+const raw = await readFile(
+  airportMode ? "public/policy-airport.json" : "public/policy.json",
+  "utf8",
+);
 const policy = parsePolicy(JSON.parse(raw));
 const repetitions = Number(process.argv[2] ?? 30);
 if (!Number.isSafeInteger(repetitions) || repetitions < 2 || repetitions > 1000)
@@ -16,7 +29,7 @@ const rows: ({
   seed: number;
   inputHash: string;
 } & Metrics)[] = [];
-for (const type of scenarioTypes)
+for (const type of cases)
   for (let index = 0; index < repetitions; index++) {
     const seed = 90001 + index;
     if (
@@ -25,7 +38,9 @@ for (const type of scenarioTypes)
       policy.training.validationSeeds.includes(seed)
     )
       throw new Error("평가 seed가 학습 또는 검증 seed와 겹칩니다.");
-    const scenario = createScenario(type, seed);
+    const scenario = snapshot
+      ? createAirportScenario(snapshot, type as FloorId, seed, 180)
+      : createScenario(type as ScenarioType, seed);
     const inputHash = createHash("sha256")
       .update(JSON.stringify(scenario))
       .digest("hex");
@@ -54,7 +69,7 @@ const keys = [
   "averageOccupancyRate",
   "peakQueue",
 ] as const;
-const summary = scenarioTypes.flatMap((scenario) =>
+const summary = cases.flatMap((scenario) =>
   ["nearest", "random", "rule", "rl"].map((strategy) => {
     const group = rows.filter(
       (row) => row.scenario === scenario && row.strategy === strategy,
@@ -92,14 +107,17 @@ const summary = scenarioTypes.flatMap((scenario) =>
 );
 await mkdir("experiments", { recursive: true });
 await writeFile(
-  "experiments/evaluation.json",
+  airportMode
+    ? "experiments/evaluation-airport.json"
+    : "experiments/evaluation.json",
   JSON.stringify(
     {
       policySha256: createHash("sha256").update(raw).digest("hex"),
       evaluationSeeds: [90001, 90000 + repetitions],
-      vehicleCount: 70,
+      vehicleCount: airportMode ? 180 : 70,
+      snapshot,
       uncertainty: 6,
-      observationEnd: 280,
+      observationEnd: airportMode ? 400 : 280,
       summary,
       rows,
     },
@@ -109,7 +127,9 @@ await writeFile(
 );
 const headers = Object.keys(rows[0]!) as (keyof (typeof rows)[number])[];
 await writeFile(
-  "experiments/evaluation.csv",
+  airportMode
+    ? "experiments/evaluation-airport.csv"
+    : "experiments/evaluation.csv",
   [
     headers.join(","),
     ...rows.map((row) => headers.map((key) => row[key]).join(",")),

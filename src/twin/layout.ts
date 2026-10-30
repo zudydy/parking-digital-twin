@@ -1,23 +1,32 @@
 import type { Edge, Layout } from "./model.js";
 
-export function createLayout(): Layout {
+export function createLayout(columns = 5): Layout {
+  if (!Number.isSafeInteger(columns) || columns < 1 || columns > 40)
+    throw new Error("열 수는 1~40 정수여야 합니다.");
   const nodes: Layout["nodes"] = [
     { id: "entry", x: 0, y: 0 },
-    { id: "exit", x: 6, y: 5 },
+    { id: "exit", x: columns + 1, y: 5 },
   ];
   const edges: Edge[] = [];
   const spots: Layout["spots"] = [];
   const connect = (from: string, to: string) =>
     edges.push({ id: `${from}>${to}`, from, to, ticks: 1, capacity: 1 });
   for (let row = 1; row <= 4; row++) {
-    for (let x = 0; x <= 6; x++) nodes.push({ id: `n${row}-${x}`, x, y: row });
+    for (let x = 0; x <= columns + 1; x++)
+      nodes.push({ id: `n${row}-${x}`, x, y: row });
     connect(row === 1 ? "entry" : `n${row - 1}-0`, `n${row}-0`);
-    for (let x = 1; x <= 6; x++) connect(`n${row}-${x - 1}`, `n${row}-${x}`);
-    if (row > 1) connect(`n${row - 1}-6`, `n${row}-6`);
-    for (let x = 1; x <= 5; x++)
-      spots.push({ id: (row - 1) * 5 + x, node: `n${row}-${x}`, zone: row });
+    for (let x = 1; x <= columns + 1; x++)
+      connect(`n${row}-${x - 1}`, `n${row}-${x}`);
+    if (row > 1)
+      connect(`n${row - 1}-${columns + 1}`, `n${row}-${columns + 1}`);
+    for (let x = 1; x <= columns; x++)
+      spots.push({
+        id: (row - 1) * columns + x,
+        node: `n${row}-${x}`,
+        zone: row,
+      });
   }
-  connect("n4-6", "exit");
+  connect(`n4-${columns + 1}`, "exit");
   return { nodes, edges, spots, entrance: "entry", exit: "exit" };
 }
 

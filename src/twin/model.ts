@@ -9,6 +9,8 @@ export interface Edge {
   to: string;
   ticks: number;
   capacity: number;
+  /** Minimum ticks between consecutive entries on this link. */
+  headway?: number;
 }
 export interface Spot {
   id: number;
@@ -39,6 +41,23 @@ export interface Scenario {
   observationEnd: number;
   vehicles: Demand[];
   layout: Layout;
+  initialParked?: {
+    vehicleId: string;
+    spotId: number;
+    departureRequest: number;
+    estimatedDeparture: number;
+  }[];
+  provenance?: {
+    sourceUrl: string;
+    updatedAt: string;
+    fetchedAt: string;
+    floor: string;
+    available: number;
+    occupancyPercent: number;
+    modelCapacity: number;
+    geometry: string;
+    demand: string;
+  };
 }
 export type Phase =
   "inbound" | "parking" | "parked" | "outbound" | "exited" | "rejected";
@@ -49,6 +68,7 @@ export interface Segment {
   direction: "inbound" | "outbound";
 }
 export interface Trip {
+  initial?: boolean;
   vehicleId: string;
   arrivalTime: number;
   estimatedDeparture: number;

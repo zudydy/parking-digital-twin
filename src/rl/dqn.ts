@@ -13,7 +13,8 @@ export interface Weights {
 }
 export interface PolicyFile {
   version: 1;
-  encoding: typeof ENCODING;
+  encoding: typeof ENCODING | "parking-80-v1";
+  network?: { inputs: number; hidden: number; actions: number };
   algorithm: "DQN";
   weights: Weights;
   training: {
@@ -36,20 +37,20 @@ export interface Transition {
   available: number[];
 }
 const bounded = (n: number) => Math.max(-3, Math.min(3, n));
-export function encode(observation: Observation): number[] {
+export function encode(observation: Observation, actions = ACTIONS): number[] {
   if (
-    observation.candidates.length !== ACTIONS ||
+    observation.candidates.length !== actions ||
     observation.candidates.some((c, i) => c.spotId !== i + 1)
   )
-    throw new Error("RL 정책은 기본 20면 레이아웃을 사용합니다.");
+    throw new Error("RL 정책과 레이아웃의 행동 수가 다릅니다.");
   return [
-    bounded(observation.time / 280),
+    bounded(observation.time / (actions === 80 ? 400 : 280)),
     bounded((observation.estimatedDeparture - observation.time) / 100),
     observation.occupancy,
     ...observation.candidates.flatMap((c) => [
       c.available ? 1 : 0,
-      c.inboundDistance / 10,
-      c.outboundDistance / 10,
+      c.inboundDistance / (actions === 80 ? 30 : 10),
+      c.outboundDistance / (actions === 80 ? 30 : 10),
       bounded(c.queue / 5),
       bounded(c.departurePressure / 5),
     ]),
@@ -61,8 +62,18 @@ export const availableActions = (observation: Observation) =>
 /** Small dense Q network: 103→32 tanh→20. Browser and trainer share inference. */
 export class QNetwork {
   weights: Weights;
+  readonly inputs: number;
+  readonly hidden: number;
+  readonly actions: number;
   private square: Weights;
-  constructor(seed = 1, weights?: Weights) {
+  constructor(
+    seed = 1,
+    weights?: Weights,
+    shape = { inputs: INPUTS, hidden: HIDDEN, actions: ACTIONS },
+  ) {
+    this.inputs = shape.inputs;
+    this.hidden = shape.hidden;
+    this.actions = shape.actions;
     const random = seededRandom(seed);
     const init = (size: number, fan: number) =>
       Array.from(
@@ -72,35 +83,37 @@ export class QNetwork {
     this.weights = weights
       ? structuredClone(weights)
       : {
-          w1: init(INPUTS * HIDDEN, INPUTS + HIDDEN),
-          b1: Array(HIDDEN).fill(0),
-          w2: init(HIDDEN * ACTIONS, HIDDEN + ACTIONS),
-          b2: Array(ACTIONS).fill(0),
+          w1: init(this.inputs * this.hidden, this.inputs + this.hidden),
+          b1: Array(this.hidden).fill(0),
+          w2: init(this.hidden * this.actions, this.hidden + this.actions),
+          b2: Array(this.actions).fill(0),
         };
     this.square = this.zeros();
   }
   private zeros(): Weights {
     return {
-      w1: Array(INPUTS * HIDDEN).fill(0),
-      b1: Array(HIDDEN).fill(0),
-      w2: Array(HIDDEN * ACTIONS).fill(0),
-      b2: Array(ACTIONS).fill(0),
+      w1: Array(this.inputs * this.hidden).fill(0),
+      b1: Array(this.hidden).fill(0),
+      w2: Array(this.hidden * this.actions).fill(0),
+      b2: Array(this.actions).fill(0),
     };
   }
   forward(state: number[]) {
-    if (state.length !== INPUTS) throw new Error("잘못된 상태 벡터입니다.");
+    if (state.length !== this.inputs)
+      throw new Error("잘못된 상태 벡터입니다.");
     const { w1, b1, w2, b2 } = this.weights;
-    const hidden = Array<number>(HIDDEN);
-    for (let j = 0; j < HIDDEN; j++) {
+    const hidden = Array<number>(this.hidden);
+    for (let j = 0; j < this.hidden; j++) {
       let value = b1[j]!;
-      for (let i = 0; i < INPUTS; i++) value += state[i]! * w1[j * INPUTS + i]!;
+      for (let i = 0; i < this.inputs; i++)
+        value += state[i]! * w1[j * this.inputs + i]!;
       hidden[j] = Math.tanh(value);
     }
-    const q = Array<number>(ACTIONS);
-    for (let a = 0; a < ACTIONS; a++) {
+    const q = Array<number>(this.actions);
+    for (let a = 0; a < this.actions; a++) {
       let value = b2[a]!;
-      for (let j = 0; j < HIDDEN; j++)
-        value += hidden[j]! * w2[a * HIDDEN + j]!;
+      for (let j = 0; j < this.hidden; j++)
+        value += hidden[j]! * w2[a * this.hidden + j]!;
       q[a] = value;
     }
     return { hidden, q };
@@ -134,14 +147,14 @@ export class QNetwork {
         Math.abs(error) <= 1 ? (error * error) / 2 : Math.abs(error) - 0.5;
       const derivative = Math.max(-1, Math.min(1, error)) / batch.length;
       gradients.b2[transition.action]! += derivative;
-      for (let j = 0; j < HIDDEN; j++) {
-        const index = transition.action * HIDDEN + j;
+      for (let j = 0; j < this.hidden; j++) {
+        const index = transition.action * this.hidden + j;
         gradients.w2[index]! += derivative * hidden[j]!;
         const delta =
           derivative * this.weights.w2[index]! * (1 - hidden[j]! ** 2);
         gradients.b1[j]! += delta;
-        for (let i = 0; i < INPUTS; i++)
-          gradients.w1[j * INPUTS + i]! += delta * transition.state[i]!;
+        for (let i = 0; i < this.inputs; i++)
+          gradients.w1[j * this.inputs + i]! += delta * transition.state[i]!;
       }
     }
     for (const key of ["w1", "b1", "w2", "b2"] as const)
@@ -159,7 +172,7 @@ export function parsePolicy(value: unknown): PolicyFile {
   if (
     !p ||
     p.version !== 1 ||
-    p.encoding !== ENCODING ||
+    (p.encoding !== ENCODING && p.encoding !== "parking-80-v1") ||
     p.algorithm !== "DQN" ||
     !p.weights ||
     !p.training ||
@@ -167,11 +180,23 @@ export function parsePolicy(value: unknown): PolicyFile {
     p.training.episodes < 1
   )
     throw new Error("지원하지 않는 RL 정책 파일입니다.");
+  const shape = p.network ?? {
+    inputs: INPUTS,
+    hidden: HIDDEN,
+    actions: ACTIONS,
+  };
+  const expectedActions = p.encoding === ENCODING ? 20 : 80;
+  if (
+    shape.actions !== expectedActions ||
+    shape.inputs !== expectedActions * 5 + 3 ||
+    shape.hidden !== (expectedActions === 20 ? 32 : 48)
+  )
+    throw new Error("RL 신경망 규격이 맞지 않습니다.");
   for (const [key, length] of [
-    ["w1", INPUTS * HIDDEN],
-    ["b1", HIDDEN],
-    ["w2", HIDDEN * ACTIONS],
-    ["b2", ACTIONS],
+    ["w1", shape.inputs * shape.hidden],
+    ["b1", shape.hidden],
+    ["w2", shape.hidden * shape.actions],
+    ["b2", shape.actions],
   ] as const) {
     if (
       !Array.isArray(p.weights[key]) ||
@@ -183,12 +208,15 @@ export function parsePolicy(value: unknown): PolicyFile {
   return p;
 }
 export function rlStrategy(policy: PolicyFile): Strategy {
-  const network = new QNetwork(1, parsePolicy(policy).weights);
+  const network = new QNetwork(1, parsePolicy(policy).weights, policy.network);
   return {
     id: "rl",
     choose(observation) {
       return observation.candidates[
-        network.action(encode(observation), availableActions(observation))
+        network.action(
+          encode(observation, network.actions),
+          availableActions(observation),
+        )
       ]!.spotId;
     },
   };

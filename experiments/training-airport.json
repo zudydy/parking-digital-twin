@@ -1,0 +1,1815 @@
+{
+  "config": {
+    "episodes": 250,
+    "seed": 20261030,
+    "gamma": 0.98,
+    "learningRate": 0.0003,
+    "reward": "-(travel ticks + parking ticks + waiting ticks + 30 × rejections) / 20; decision-based discount",
+    "trainingSeeds": [
+      1000,
+      1249
+    ],
+    "validationSeeds": [
+      50001,
+      50002,
+      50003
+    ],
+    "selectedEpisode": 50,
+    "validationCost": 7524.666666666667
+  },
+  "network": {
+    "inputs": 403,
+    "hidden": 48,
+    "actions": 80
+  },
+  "snapshot": {
+    "schemaVersion": 1,
+    "sourceUrl": "https://www.airport.kr/ap_ko/964/subview.do",
+    "sourceName": "인천국제공항공사 공식 주차장 혼잡도",
+    "updatedAt": "2026-10-30T20:27:23+09:00",
+    "fetchedAt": "2026-10-30T11:29:22.256Z",
+    "floors": [
+      {
+        "id": "ground",
+        "name": "지상 1층",
+        "available": 264,
+        "occupancyPercent": 74
+      },
+      {
+        "id": "b1",
+        "name": "지하 1층",
+        "available": 126,
+        "occupancyPercent": 75
+      },
+      {
+        "id": "b2",
+        "name": "지하 2층",
+        "available": 357,
+        "occupancyPercent": 73
+      }
+    ]
+  },
+  "updates": 9342,
+  "history": [
+    {
+      "episode": 1,
+      "type": "office",
+      "cost": 8058,
+      "epsilon": 1,
+      "loss": 1.3667630198389369
+    },
+    {
+      "episode": 2,
+      "type": "cinema",
+      "cost": 7594,
+      "epsilon": 0.995,
+      "loss": 1.5451379653062243
+    },
+    {
+      "episode": 3,
+      "type": "mall",
+      "cost": 7568,
+      "epsilon": 0.99,
+      "loss": 2.1093336286476476
+    },
+    {
+      "episode": 4,
+      "type": "office",
+      "cost": 7356,
+      "epsilon": 0.985,
+      "loss": 1.7935938246695078
+    },
+    {
+      "episode": 5,
+      "type": "cinema",
+      "cost": 7850,
+      "epsilon": 0.98,
+      "loss": 1.6557254437491904
+    },
+    {
+      "episode": 6,
+      "type": "mall",
+      "cost": 7232,
+      "epsilon": 0.975,
+      "loss": 1.7084624153261507
+    },
+    {
+      "episode": 7,
+      "type": "office",
+      "cost": 7850,
+      "epsilon": 0.97,
+      "loss": 1.918888930014358
+    },
+    {
+      "episode": 8,
+      "type": "cinema",
+      "cost": 7341,
+      "epsilon": 0.965,
+      "loss": 1.6097718773048575
+    },
+    {
+      "episode": 9,
+      "type": "mall",
+      "cost": 7510,
+      "epsilon": 0.96,
+      "loss": 1.6671339997146635
+    },
+    {
+      "episode": 10,
+      "type": "office",
+      "cost": 7545,
+      "epsilon": 0.955,
+      "loss": 1.8796212743138299
+    },
+    {
+      "episode": 11,
+      "type": "cinema",
+      "cost": 7989,
+      "epsilon": 0.95,
+      "loss": 1.6861914148415043
+    },
+    {
+      "episode": 12,
+      "type": "mall",
+      "cost": 8125,
+      "epsilon": 0.945,
+      "loss": 2.0964599118169507
+    },
+    {
+      "episode": 13,
+      "type": "office",
+      "cost": 7818,
+      "epsilon": 0.94,
+      "loss": 2.210187203148671
+    },
+    {
+      "episode": 14,
+      "type": "cinema",
+      "cost": 7162,
+      "epsilon": 0.935,
+      "loss": 1.6648525760520823
+    },
+    {
+      "episode": 15,
+      "type": "mall",
+      "cost": 8189,
+      "epsilon": 0.9299999999999999,
+      "loss": 1.4377089179302716
+    },
+    {
+      "episode": 16,
+      "type": "office",
+      "cost": 7330,
+      "epsilon": 0.925,
+      "loss": 2.0835843522682653
+    },
+    {
+      "episode": 17,
+      "type": "cinema",
+      "cost": 7093,
+      "epsilon": 0.92,
+      "loss": 1.6379484061871485
+    },
+    {
+      "episode": 18,
+      "type": "mall",
+      "cost": 7582,
+      "epsilon": 0.915,
+      "loss": 2.3498907499560273
+    },
+    {
+      "episode": 19,
+      "type": "office",
+      "cost": 7246,
+      "epsilon": 0.91,
+      "loss": 2.156633605537226
+    },
+    {
+      "episode": 20,
+      "type": "cinema",
+      "cost": 7795,
+      "epsilon": 0.905,
+      "loss": 1.7515286201118887
+    },
+    {
+      "episode": 21,
+      "type": "mall",
+      "cost": 8220,
+      "epsilon": 0.9,
+      "loss": 1.9219153607164434
+    },
+    {
+      "episode": 22,
+      "type": "office",
+      "cost": 7728,
+      "epsilon": 0.895,
+      "loss": 1.3624082159693813
+    },
+    {
+      "episode": 23,
+      "type": "cinema",
+      "cost": 7877,
+      "epsilon": 0.89,
+      "loss": 2.2111691077837823
+    },
+    {
+      "episode": 24,
+      "type": "mall",
+      "cost": 8123,
+      "epsilon": 0.885,
+      "loss": 1.7497434023540113
+    },
+    {
+      "episode": 25,
+      "type": "office",
+      "cost": 7836,
+      "epsilon": 0.88,
+      "loss": 2.0670320191443223,
+      "validationCost": 7538.333333333333
+    },
+    {
+      "episode": 26,
+      "type": "cinema",
+      "cost": 7228,
+      "epsilon": 0.875,
+      "loss": 1.6313865221768544
+    },
+    {
+      "episode": 27,
+      "type": "mall",
+      "cost": 7796,
+      "epsilon": 0.87,
+      "loss": 1.6252565212804528
+    },
+    {
+      "episode": 28,
+      "type": "office",
+      "cost": 7400,
+      "epsilon": 0.865,
+      "loss": 1.9898656648644408
+    },
+    {
+      "episode": 29,
+      "type": "cinema",
+      "cost": 7635,
+      "epsilon": 0.86,
+      "loss": 1.9660003077345394
+    },
+    {
+      "episode": 30,
+      "type": "mall",
+      "cost": 7171,
+      "epsilon": 0.855,
+      "loss": 1.7601812475256056
+    },
+    {
+      "episode": 31,
+      "type": "office",
+      "cost": 7547,
+      "epsilon": 0.85,
+      "loss": 2.5360762142047824
+    },
+    {
+      "episode": 32,
+      "type": "cinema",
+      "cost": 7230,
+      "epsilon": 0.845,
+      "loss": 2.1533187268240686
+    },
+    {
+      "episode": 33,
+      "type": "mall",
+      "cost": 8068,
+      "epsilon": 0.84,
+      "loss": 2.055686709926106
+    },
+    {
+      "episode": 34,
+      "type": "office",
+      "cost": 7346,
+      "epsilon": 0.835,
+      "loss": 1.817301586882204
+    },
+    {
+      "episode": 35,
+      "type": "cinema",
+      "cost": 7908,
+      "epsilon": 0.83,
+      "loss": 2.0099230913426798
+    },
+    {
+      "episode": 36,
+      "type": "mall",
+      "cost": 7977,
+      "epsilon": 0.825,
+      "loss": 1.7992744827217448
+    },
+    {
+      "episode": 37,
+      "type": "office",
+      "cost": 7939,
+      "epsilon": 0.8200000000000001,
+      "loss": 2.1698451363130293
+    },
+    {
+      "episode": 38,
+      "type": "cinema",
+      "cost": 8123,
+      "epsilon": 0.815,
+      "loss": 2.0676026621293526
+    },
+    {
+      "episode": 39,
+      "type": "mall",
+      "cost": 7625,
+      "epsilon": 0.81,
+      "loss": 2.7075171037087022
+    },
+    {
+      "episode": 40,
+      "type": "office",
+      "cost": 8094,
+      "epsilon": 0.8049999999999999,
+      "loss": 1.9350926912179662
+    },
+    {
+      "episode": 41,
+      "type": "cinema",
+      "cost": 7802,
+      "epsilon": 0.8,
+      "loss": 1.9852424196717193
+    },
+    {
+      "episode": 42,
+      "type": "mall",
+      "cost": 7464,
+      "epsilon": 0.795,
+      "loss": 2.0663121137102487
+    },
+    {
+      "episode": 43,
+      "type": "office",
+      "cost": 7961,
+      "epsilon": 0.79,
+      "loss": 1.687583503165791
+    },
+    {
+      "episode": 44,
+      "type": "cinema",
+      "cost": 7851,
+      "epsilon": 0.785,
+      "loss": 1.8485887873161782
+    },
+    {
+      "episode": 45,
+      "type": "mall",
+      "cost": 8104,
+      "epsilon": 0.78,
+      "loss": 2.0379825042551643
+    },
+    {
+      "episode": 46,
+      "type": "office",
+      "cost": 8055,
+      "epsilon": 0.775,
+      "loss": 2.1224114515711383
+    },
+    {
+      "episode": 47,
+      "type": "cinema",
+      "cost": 7882,
+      "epsilon": 0.77,
+      "loss": 1.8612103193095773
+    },
+    {
+      "episode": 48,
+      "type": "mall",
+      "cost": 8152,
+      "epsilon": 0.765,
+      "loss": 1.5894256885617988
+    },
+    {
+      "episode": 49,
+      "type": "office",
+      "cost": 8052,
+      "epsilon": 0.76,
+      "loss": 1.940010561342283
+    },
+    {
+      "episode": 50,
+      "type": "cinema",
+      "cost": 8142,
+      "epsilon": 0.755,
+      "loss": 2.314171239950733,
+      "validationCost": 7524.666666666667
+    },
+    {
+      "episode": 51,
+      "type": "mall",
+      "cost": 7609,
+      "epsilon": 0.75,
+      "loss": 1.7780272065801728
+    },
+    {
+      "episode": 52,
+      "type": "office",
+      "cost": 7824,
+      "epsilon": 0.745,
+      "loss": 1.8249810493850716
+    },
+    {
+      "episode": 53,
+      "type": "cinema",
+      "cost": 7889,
+      "epsilon": 0.74,
+      "loss": 2.0368896880056355
+    },
+    {
+      "episode": 54,
+      "type": "mall",
+      "cost": 7267,
+      "epsilon": 0.735,
+      "loss": 1.4473652153892946
+    },
+    {
+      "episode": 55,
+      "type": "office",
+      "cost": 7588,
+      "epsilon": 0.73,
+      "loss": 1.851550948207122
+    },
+    {
+      "episode": 56,
+      "type": "cinema",
+      "cost": 7538,
+      "epsilon": 0.725,
+      "loss": 1.8563338906231506
+    },
+    {
+      "episode": 57,
+      "type": "mall",
+      "cost": 7571,
+      "epsilon": 0.72,
+      "loss": 2.323750267067843
+    },
+    {
+      "episode": 58,
+      "type": "office",
+      "cost": 7166,
+      "epsilon": 0.7150000000000001,
+      "loss": 2.4152386717131384
+    },
+    {
+      "episode": 59,
+      "type": "cinema",
+      "cost": 7194,
+      "epsilon": 0.71,
+      "loss": 1.7813999700058285
+    },
+    {
+      "episode": 60,
+      "type": "mall",
+      "cost": 7292,
+      "epsilon": 0.7050000000000001,
+      "loss": 1.6259180620226095
+    },
+    {
+      "episode": 61,
+      "type": "office",
+      "cost": 7415,
+      "epsilon": 0.7,
+      "loss": 2.1908225654142197
+    },
+    {
+      "episode": 62,
+      "type": "cinema",
+      "cost": 7864,
+      "epsilon": 0.6950000000000001,
+      "loss": 2.2800393739820497
+    },
+    {
+      "episode": 63,
+      "type": "mall",
+      "cost": 7993,
+      "epsilon": 0.69,
+      "loss": 1.8748555006626386
+    },
+    {
+      "episode": 64,
+      "type": "office",
+      "cost": 7521,
+      "epsilon": 0.685,
+      "loss": 1.754745548533643
+    },
+    {
+      "episode": 65,
+      "type": "cinema",
+      "cost": 7544,
+      "epsilon": 0.6799999999999999,
+      "loss": 2.093711059513269
+    },
+    {
+      "episode": 66,
+      "type": "mall",
+      "cost": 7246,
+      "epsilon": 0.675,
+      "loss": 1.9456033078816417
+    },
+    {
+      "episode": 67,
+      "type": "office",
+      "cost": 7298,
+      "epsilon": 0.6699999999999999,
+      "loss": 1.8587726986929924
+    },
+    {
+      "episode": 68,
+      "type": "cinema",
+      "cost": 7512,
+      "epsilon": 0.665,
+      "loss": 2.505983582267316
+    },
+    {
+      "episode": 69,
+      "type": "mall",
+      "cost": 7909,
+      "epsilon": 0.6599999999999999,
+      "loss": 1.6494685319516067
+    },
+    {
+      "episode": 70,
+      "type": "office",
+      "cost": 7329,
+      "epsilon": 0.655,
+      "loss": 1.6962702832645173
+    },
+    {
+      "episode": 71,
+      "type": "cinema",
+      "cost": 8120,
+      "epsilon": 0.65,
+      "loss": 1.9727832650820092
+    },
+    {
+      "episode": 72,
+      "type": "mall",
+      "cost": 7718,
+      "epsilon": 0.645,
+      "loss": 2.094438616254224
+    },
+    {
+      "episode": 73,
+      "type": "office",
+      "cost": 7350,
+      "epsilon": 0.64,
+      "loss": 2.1772792682100213
+    },
+    {
+      "episode": 74,
+      "type": "cinema",
+      "cost": 7816,
+      "epsilon": 0.635,
+      "loss": 2.1541356349652543
+    },
+    {
+      "episode": 75,
+      "type": "mall",
+      "cost": 7302,
+      "epsilon": 0.63,
+      "loss": 1.6044370693667278,
+      "validationCost": 7528.666666666667
+    },
+    {
+      "episode": 76,
+      "type": "office",
+      "cost": 7219,
+      "epsilon": 0.625,
+      "loss": 1.3444477299894506
+    },
+    {
+      "episode": 77,
+      "type": "cinema",
+      "cost": 8191,
+      "epsilon": 0.62,
+      "loss": 2.079939320402315
+    },
+    {
+      "episode": 78,
+      "type": "mall",
+      "cost": 7424,
+      "epsilon": 0.615,
+      "loss": 1.4289951889636316
+    },
+    {
+      "episode": 79,
+      "type": "office",
+      "cost": 7129,
+      "epsilon": 0.61,
+      "loss": 2.6176096260000676
+    },
+    {
+      "episode": 80,
+      "type": "cinema",
+      "cost": 7059,
+      "epsilon": 0.605,
+      "loss": 1.7516726935982772
+    },
+    {
+      "episode": 81,
+      "type": "mall",
+      "cost": 7583,
+      "epsilon": 0.6,
+      "loss": 1.9511048029055131
+    },
+    {
+      "episode": 82,
+      "type": "office",
+      "cost": 7624,
+      "epsilon": 0.595,
+      "loss": 1.327875924735917
+    },
+    {
+      "episode": 83,
+      "type": "cinema",
+      "cost": 7319,
+      "epsilon": 0.5900000000000001,
+      "loss": 1.9592286003346135
+    },
+    {
+      "episode": 84,
+      "type": "mall",
+      "cost": 7161,
+      "epsilon": 0.585,
+      "loss": 1.9970466437901269
+    },
+    {
+      "episode": 85,
+      "type": "office",
+      "cost": 7577,
+      "epsilon": 0.5800000000000001,
+      "loss": 2.0224584125715563
+    },
+    {
+      "episode": 86,
+      "type": "cinema",
+      "cost": 7965,
+      "epsilon": 0.575,
+      "loss": 2.4632620831163328
+    },
+    {
+      "episode": 87,
+      "type": "mall",
+      "cost": 8006,
+      "epsilon": 0.5700000000000001,
+      "loss": 1.7592526779100908
+    },
+    {
+      "episode": 88,
+      "type": "office",
+      "cost": 7522,
+      "epsilon": 0.565,
+      "loss": 1.7647767106261762
+    },
+    {
+      "episode": 89,
+      "type": "cinema",
+      "cost": 7978,
+      "epsilon": 0.56,
+      "loss": 2.2394936612708984
+    },
+    {
+      "episode": 90,
+      "type": "mall",
+      "cost": 7960,
+      "epsilon": 0.5549999999999999,
+      "loss": 2.2122563900196304
+    },
+    {
+      "episode": 91,
+      "type": "office",
+      "cost": 7584,
+      "epsilon": 0.55,
+      "loss": 1.6129848818707118
+    },
+    {
+      "episode": 92,
+      "type": "cinema",
+      "cost": 7838,
+      "epsilon": 0.5449999999999999,
+      "loss": 1.741537723493217
+    },
+    {
+      "episode": 93,
+      "type": "mall",
+      "cost": 7116,
+      "epsilon": 0.54,
+      "loss": 2.0798939739895452
+    },
+    {
+      "episode": 94,
+      "type": "office",
+      "cost": 7155,
+      "epsilon": 0.5349999999999999,
+      "loss": 1.5159243332839123
+    },
+    {
+      "episode": 95,
+      "type": "cinema",
+      "cost": 7961,
+      "epsilon": 0.53,
+      "loss": 1.9921542025265968
+    },
+    {
+      "episode": 96,
+      "type": "mall",
+      "cost": 7740,
+      "epsilon": 0.525,
+      "loss": 1.7003119791165884
+    },
+    {
+      "episode": 97,
+      "type": "office",
+      "cost": 8092,
+      "epsilon": 0.52,
+      "loss": 1.7829316716801185
+    },
+    {
+      "episode": 98,
+      "type": "cinema",
+      "cost": 7064,
+      "epsilon": 0.515,
+      "loss": 1.80237843006985
+    },
+    {
+      "episode": 99,
+      "type": "mall",
+      "cost": 7528,
+      "epsilon": 0.51,
+      "loss": 2.042825264151213
+    },
+    {
+      "episode": 100,
+      "type": "office",
+      "cost": 7501,
+      "epsilon": 0.505,
+      "loss": 1.5582410811960488,
+      "validationCost": 7548
+    },
+    {
+      "episode": 101,
+      "type": "cinema",
+      "cost": 7326,
+      "epsilon": 0.5,
+      "loss": 1.8883080139887238
+    },
+    {
+      "episode": 102,
+      "type": "mall",
+      "cost": 7599,
+      "epsilon": 0.495,
+      "loss": 1.8760880083847404
+    },
+    {
+      "episode": 103,
+      "type": "office",
+      "cost": 7237,
+      "epsilon": 0.49,
+      "loss": 1.6874543264052766
+    },
+    {
+      "episode": 104,
+      "type": "cinema",
+      "cost": 7253,
+      "epsilon": 0.485,
+      "loss": 1.659887677210637
+    },
+    {
+      "episode": 105,
+      "type": "mall",
+      "cost": 7919,
+      "epsilon": 0.48,
+      "loss": 2.2278140411613103
+    },
+    {
+      "episode": 106,
+      "type": "office",
+      "cost": 7676,
+      "epsilon": 0.475,
+      "loss": 1.849007564734375
+    },
+    {
+      "episode": 107,
+      "type": "cinema",
+      "cost": 7894,
+      "epsilon": 0.47,
+      "loss": 1.9154644879662117
+    },
+    {
+      "episode": 108,
+      "type": "mall",
+      "cost": 7944,
+      "epsilon": 0.46499999999999997,
+      "loss": 1.620375306942678
+    },
+    {
+      "episode": 109,
+      "type": "office",
+      "cost": 7722,
+      "epsilon": 0.45999999999999996,
+      "loss": 2.001028794465646
+    },
+    {
+      "episode": 110,
+      "type": "cinema",
+      "cost": 7531,
+      "epsilon": 0.45499999999999996,
+      "loss": 1.8157012736298326
+    },
+    {
+      "episode": 111,
+      "type": "mall",
+      "cost": 8092,
+      "epsilon": 0.44999999999999996,
+      "loss": 1.7462903311164806
+    },
+    {
+      "episode": 112,
+      "type": "office",
+      "cost": 7823,
+      "epsilon": 0.44499999999999995,
+      "loss": 1.5664609530058495
+    },
+    {
+      "episode": 113,
+      "type": "cinema",
+      "cost": 7955,
+      "epsilon": 0.43999999999999995,
+      "loss": 1.937575075272288
+    },
+    {
+      "episode": 114,
+      "type": "mall",
+      "cost": 7535,
+      "epsilon": 0.43500000000000005,
+      "loss": 1.6787952481905495
+    },
+    {
+      "episode": 115,
+      "type": "office",
+      "cost": 7020,
+      "epsilon": 0.43000000000000005,
+      "loss": 1.7473856751784882
+    },
+    {
+      "episode": 116,
+      "type": "cinema",
+      "cost": 7953,
+      "epsilon": 0.42500000000000004,
+      "loss": 2.128734825882267
+    },
+    {
+      "episode": 117,
+      "type": "mall",
+      "cost": 7606,
+      "epsilon": 0.42000000000000004,
+      "loss": 1.9933780296515335
+    },
+    {
+      "episode": 118,
+      "type": "office",
+      "cost": 7728,
+      "epsilon": 0.41500000000000004,
+      "loss": 2.2997354245331865
+    },
+    {
+      "episode": 119,
+      "type": "cinema",
+      "cost": 8092,
+      "epsilon": 0.41000000000000003,
+      "loss": 1.6764907113068346
+    },
+    {
+      "episode": 120,
+      "type": "mall",
+      "cost": 7203,
+      "epsilon": 0.405,
+      "loss": 1.4637170438432126
+    },
+    {
+      "episode": 121,
+      "type": "office",
+      "cost": 6974,
+      "epsilon": 0.4,
+      "loss": 2.3872233169686026
+    },
+    {
+      "episode": 122,
+      "type": "cinema",
+      "cost": 7962,
+      "epsilon": 0.395,
+      "loss": 1.5051070154706214
+    },
+    {
+      "episode": 123,
+      "type": "mall",
+      "cost": 8116,
+      "epsilon": 0.39,
+      "loss": 1.7809813947125719
+    },
+    {
+      "episode": 124,
+      "type": "office",
+      "cost": 7264,
+      "epsilon": 0.385,
+      "loss": 2.3895037666830325
+    },
+    {
+      "episode": 125,
+      "type": "cinema",
+      "cost": 7525,
+      "epsilon": 0.38,
+      "loss": 1.485647443161878,
+      "validationCost": 7576
+    },
+    {
+      "episode": 126,
+      "type": "mall",
+      "cost": 8068,
+      "epsilon": 0.375,
+      "loss": 1.1944520288694993
+    },
+    {
+      "episode": 127,
+      "type": "office",
+      "cost": 8124,
+      "epsilon": 0.37,
+      "loss": 1.6380235214840753
+    },
+    {
+      "episode": 128,
+      "type": "cinema",
+      "cost": 7211,
+      "epsilon": 0.365,
+      "loss": 2.361859064248305
+    },
+    {
+      "episode": 129,
+      "type": "mall",
+      "cost": 7396,
+      "epsilon": 0.36,
+      "loss": 1.9136894596687508
+    },
+    {
+      "episode": 130,
+      "type": "office",
+      "cost": 7485,
+      "epsilon": 0.355,
+      "loss": 1.673624460054767
+    },
+    {
+      "episode": 131,
+      "type": "cinema",
+      "cost": 7181,
+      "epsilon": 0.35,
+      "loss": 1.4276602708011588
+    },
+    {
+      "episode": 132,
+      "type": "mall",
+      "cost": 8083,
+      "epsilon": 0.345,
+      "loss": 1.4922761526891728
+    },
+    {
+      "episode": 133,
+      "type": "office",
+      "cost": 7654,
+      "epsilon": 0.33999999999999997,
+      "loss": 1.5466509359118923
+    },
+    {
+      "episode": 134,
+      "type": "cinema",
+      "cost": 7895,
+      "epsilon": 0.33499999999999996,
+      "loss": 1.5482009895707358
+    },
+    {
+      "episode": 135,
+      "type": "mall",
+      "cost": 8137,
+      "epsilon": 0.32999999999999996,
+      "loss": 1.8751013638038632
+    },
+    {
+      "episode": 136,
+      "type": "office",
+      "cost": 7919,
+      "epsilon": 0.32499999999999996,
+      "loss": 1.7109510084857462
+    },
+    {
+      "episode": 137,
+      "type": "cinema",
+      "cost": 7259,
+      "epsilon": 0.31999999999999995,
+      "loss": 1.6902510398399064
+    },
+    {
+      "episode": 138,
+      "type": "mall",
+      "cost": 8384,
+      "epsilon": 0.31499999999999995,
+      "loss": 1.6573467895331901
+    },
+    {
+      "episode": 139,
+      "type": "office",
+      "cost": 8248,
+      "epsilon": 0.31000000000000005,
+      "loss": 1.8833104761285056
+    },
+    {
+      "episode": 140,
+      "type": "cinema",
+      "cost": 7259,
+      "epsilon": 0.30500000000000005,
+      "loss": 2.123326798764606
+    },
+    {
+      "episode": 141,
+      "type": "mall",
+      "cost": 7122,
+      "epsilon": 0.30000000000000004,
+      "loss": 1.71410131621441
+    },
+    {
+      "episode": 142,
+      "type": "office",
+      "cost": 8332,
+      "epsilon": 0.29500000000000004,
+      "loss": 1.9338742088904333
+    },
+    {
+      "episode": 143,
+      "type": "cinema",
+      "cost": 6932,
+      "epsilon": 0.29000000000000004,
+      "loss": 1.704058436308092
+    },
+    {
+      "episode": 144,
+      "type": "mall",
+      "cost": 7495,
+      "epsilon": 0.28500000000000003,
+      "loss": 1.788243777042435
+    },
+    {
+      "episode": 145,
+      "type": "office",
+      "cost": 7376,
+      "epsilon": 0.28,
+      "loss": 1.2758424846490746
+    },
+    {
+      "episode": 146,
+      "type": "cinema",
+      "cost": 7801,
+      "epsilon": 0.275,
+      "loss": 2.024516372805727
+    },
+    {
+      "episode": 147,
+      "type": "mall",
+      "cost": 7485,
+      "epsilon": 0.27,
+      "loss": 1.3151142497364994
+    },
+    {
+      "episode": 148,
+      "type": "office",
+      "cost": 7315,
+      "epsilon": 0.265,
+      "loss": 1.8916841482300846
+    },
+    {
+      "episode": 149,
+      "type": "cinema",
+      "cost": 7657,
+      "epsilon": 0.26,
+      "loss": 1.8614043038068981
+    },
+    {
+      "episode": 150,
+      "type": "mall",
+      "cost": 7914,
+      "epsilon": 0.255,
+      "loss": 1.7317846450199972,
+      "validationCost": 7580.333333333333
+    },
+    {
+      "episode": 151,
+      "type": "office",
+      "cost": 7379,
+      "epsilon": 0.25,
+      "loss": 1.5616597197825568
+    },
+    {
+      "episode": 152,
+      "type": "cinema",
+      "cost": 7139,
+      "epsilon": 0.245,
+      "loss": 2.182308651606872
+    },
+    {
+      "episode": 153,
+      "type": "mall",
+      "cost": 7255,
+      "epsilon": 0.24,
+      "loss": 1.5457850481849555
+    },
+    {
+      "episode": 154,
+      "type": "office",
+      "cost": 8117,
+      "epsilon": 0.235,
+      "loss": 1.460658034882551
+    },
+    {
+      "episode": 155,
+      "type": "cinema",
+      "cost": 7828,
+      "epsilon": 0.22999999999999998,
+      "loss": 1.5512065346196053
+    },
+    {
+      "episode": 156,
+      "type": "mall",
+      "cost": 7733,
+      "epsilon": 0.22499999999999998,
+      "loss": 1.7868115783834873
+    },
+    {
+      "episode": 157,
+      "type": "office",
+      "cost": 7674,
+      "epsilon": 0.21999999999999997,
+      "loss": 2.012157692280623
+    },
+    {
+      "episode": 158,
+      "type": "cinema",
+      "cost": 7065,
+      "epsilon": 0.21499999999999997,
+      "loss": 1.3433759142090047
+    },
+    {
+      "episode": 159,
+      "type": "mall",
+      "cost": 8540,
+      "epsilon": 0.20999999999999996,
+      "loss": 1.8697104351531166
+    },
+    {
+      "episode": 160,
+      "type": "office",
+      "cost": 7567,
+      "epsilon": 0.20499999999999996,
+      "loss": 1.4350918026046182
+    },
+    {
+      "episode": 161,
+      "type": "cinema",
+      "cost": 7555,
+      "epsilon": 0.19999999999999996,
+      "loss": 1.3212405594097738
+    },
+    {
+      "episode": 162,
+      "type": "mall",
+      "cost": 7901,
+      "epsilon": 0.19499999999999995,
+      "loss": 1.9865207555801727
+    },
+    {
+      "episode": 163,
+      "type": "office",
+      "cost": 7441,
+      "epsilon": 0.18999999999999995,
+      "loss": 1.8687889839668215
+    },
+    {
+      "episode": 164,
+      "type": "cinema",
+      "cost": 7171,
+      "epsilon": 0.18500000000000005,
+      "loss": 2.2785249419557405
+    },
+    {
+      "episode": 165,
+      "type": "mall",
+      "cost": 7099,
+      "epsilon": 0.18000000000000005,
+      "loss": 1.5192288538652001
+    },
+    {
+      "episode": 166,
+      "type": "office",
+      "cost": 8023,
+      "epsilon": 0.17500000000000004,
+      "loss": 1.8687615831973337
+    },
+    {
+      "episode": 167,
+      "type": "cinema",
+      "cost": 7635,
+      "epsilon": 0.17000000000000004,
+      "loss": 1.5358848390264939
+    },
+    {
+      "episode": 168,
+      "type": "mall",
+      "cost": 7356,
+      "epsilon": 0.16500000000000004,
+      "loss": 1.5723747754160013
+    },
+    {
+      "episode": 169,
+      "type": "office",
+      "cost": 8144,
+      "epsilon": 0.16000000000000003,
+      "loss": 1.8025241202010218
+    },
+    {
+      "episode": 170,
+      "type": "cinema",
+      "cost": 7560,
+      "epsilon": 0.15500000000000003,
+      "loss": 1.6739035795772015
+    },
+    {
+      "episode": 171,
+      "type": "mall",
+      "cost": 8369,
+      "epsilon": 0.15000000000000002,
+      "loss": 2.093950605248173
+    },
+    {
+      "episode": 172,
+      "type": "office",
+      "cost": 8026,
+      "epsilon": 0.14500000000000002,
+      "loss": 1.652817388416087
+    },
+    {
+      "episode": 173,
+      "type": "cinema",
+      "cost": 7313,
+      "epsilon": 0.14,
+      "loss": 1.7904188257722722
+    },
+    {
+      "episode": 174,
+      "type": "mall",
+      "cost": 8159,
+      "epsilon": 0.135,
+      "loss": 1.3933294252503206
+    },
+    {
+      "episode": 175,
+      "type": "office",
+      "cost": 8334,
+      "epsilon": 0.13,
+      "loss": 2.0199999671848237,
+      "validationCost": 7544
+    },
+    {
+      "episode": 176,
+      "type": "cinema",
+      "cost": 7665,
+      "epsilon": 0.125,
+      "loss": 1.9229999375874354
+    },
+    {
+      "episode": 177,
+      "type": "mall",
+      "cost": 7930,
+      "epsilon": 0.12,
+      "loss": 1.3239975075883859
+    },
+    {
+      "episode": 178,
+      "type": "office",
+      "cost": 7907,
+      "epsilon": 0.11499999999999999,
+      "loss": 2.0633720893667205
+    },
+    {
+      "episode": 179,
+      "type": "cinema",
+      "cost": 7595,
+      "epsilon": 0.10999999999999999,
+      "loss": 1.9732835913629734
+    },
+    {
+      "episode": 180,
+      "type": "mall",
+      "cost": 7216,
+      "epsilon": 0.10499999999999998,
+      "loss": 1.5343967554940408
+    },
+    {
+      "episode": 181,
+      "type": "office",
+      "cost": 7129,
+      "epsilon": 0.09999999999999998,
+      "loss": 1.7746312901713368
+    },
+    {
+      "episode": 182,
+      "type": "cinema",
+      "cost": 7212,
+      "epsilon": 0.09499999999999997,
+      "loss": 1.9566848264491057
+    },
+    {
+      "episode": 183,
+      "type": "mall",
+      "cost": 7267,
+      "epsilon": 0.08999999999999997,
+      "loss": 2.1726035690526104
+    },
+    {
+      "episode": 184,
+      "type": "office",
+      "cost": 7833,
+      "epsilon": 0.08499999999999996,
+      "loss": 1.5556041513011225
+    },
+    {
+      "episode": 185,
+      "type": "cinema",
+      "cost": 7705,
+      "epsilon": 0.08,
+      "loss": 1.6043544186391305
+    },
+    {
+      "episode": 186,
+      "type": "mall",
+      "cost": 7641,
+      "epsilon": 0.08,
+      "loss": 2.1500653009779978
+    },
+    {
+      "episode": 187,
+      "type": "office",
+      "cost": 7497,
+      "epsilon": 0.08,
+      "loss": 1.6944687370360254
+    },
+    {
+      "episode": 188,
+      "type": "cinema",
+      "cost": 7824,
+      "epsilon": 0.08,
+      "loss": 1.5796187546712464
+    },
+    {
+      "episode": 189,
+      "type": "mall",
+      "cost": 7305,
+      "epsilon": 0.08,
+      "loss": 1.7719913207304627
+    },
+    {
+      "episode": 190,
+      "type": "office",
+      "cost": 7405,
+      "epsilon": 0.08,
+      "loss": 1.572304870262398
+    },
+    {
+      "episode": 191,
+      "type": "cinema",
+      "cost": 7314,
+      "epsilon": 0.08,
+      "loss": 1.449695490445556
+    },
+    {
+      "episode": 192,
+      "type": "mall",
+      "cost": 7020,
+      "epsilon": 0.08,
+      "loss": 1.9578840538614932
+    },
+    {
+      "episode": 193,
+      "type": "office",
+      "cost": 7129,
+      "epsilon": 0.08,
+      "loss": 1.8111389049833402
+    },
+    {
+      "episode": 194,
+      "type": "cinema",
+      "cost": 7779,
+      "epsilon": 0.08,
+      "loss": 1.3982461098285317
+    },
+    {
+      "episode": 195,
+      "type": "mall",
+      "cost": 7433,
+      "epsilon": 0.08,
+      "loss": 1.6075873083673096
+    },
+    {
+      "episode": 196,
+      "type": "office",
+      "cost": 7131,
+      "epsilon": 0.08,
+      "loss": 1.5457509408006045
+    },
+    {
+      "episode": 197,
+      "type": "cinema",
+      "cost": 7540,
+      "epsilon": 0.08,
+      "loss": 1.5549264726578904
+    },
+    {
+      "episode": 198,
+      "type": "mall",
+      "cost": 7146,
+      "epsilon": 0.08,
+      "loss": 1.766318356292839
+    },
+    {
+      "episode": 199,
+      "type": "office",
+      "cost": 8052,
+      "epsilon": 0.08,
+      "loss": 1.545585360794751
+    },
+    {
+      "episode": 200,
+      "type": "cinema",
+      "cost": 7839,
+      "epsilon": 0.08,
+      "loss": 1.6823691045526257,
+      "validationCost": 7582.333333333333
+    },
+    {
+      "episode": 201,
+      "type": "mall",
+      "cost": 7367,
+      "epsilon": 0.08,
+      "loss": 1.860983109212844
+    },
+    {
+      "episode": 202,
+      "type": "office",
+      "cost": 8038,
+      "epsilon": 0.08,
+      "loss": 1.6466943021458065
+    },
+    {
+      "episode": 203,
+      "type": "cinema",
+      "cost": 7722,
+      "epsilon": 0.08,
+      "loss": 1.8894031260148687
+    },
+    {
+      "episode": 204,
+      "type": "mall",
+      "cost": 7806,
+      "epsilon": 0.08,
+      "loss": 1.6437774578875208
+    },
+    {
+      "episode": 205,
+      "type": "office",
+      "cost": 7513,
+      "epsilon": 0.08,
+      "loss": 1.714304872093902
+    },
+    {
+      "episode": 206,
+      "type": "cinema",
+      "cost": 7029,
+      "epsilon": 0.08,
+      "loss": 1.5022266635658865
+    },
+    {
+      "episode": 207,
+      "type": "mall",
+      "cost": 7925,
+      "epsilon": 0.08,
+      "loss": 1.630173289680783
+    },
+    {
+      "episode": 208,
+      "type": "office",
+      "cost": 7649,
+      "epsilon": 0.08,
+      "loss": 1.6675261696523518
+    },
+    {
+      "episode": 209,
+      "type": "cinema",
+      "cost": 7375,
+      "epsilon": 0.08,
+      "loss": 1.750507745969137
+    },
+    {
+      "episode": 210,
+      "type": "mall",
+      "cost": 8060,
+      "epsilon": 0.08,
+      "loss": 1.6967151622802128
+    },
+    {
+      "episode": 211,
+      "type": "office",
+      "cost": 7186,
+      "epsilon": 0.08,
+      "loss": 1.9959812255529954
+    },
+    {
+      "episode": 212,
+      "type": "cinema",
+      "cost": 7237,
+      "epsilon": 0.08,
+      "loss": 1.9181367400704123
+    },
+    {
+      "episode": 213,
+      "type": "mall",
+      "cost": 7850,
+      "epsilon": 0.08,
+      "loss": 1.7276407449904858
+    },
+    {
+      "episode": 214,
+      "type": "office",
+      "cost": 7137,
+      "epsilon": 0.08,
+      "loss": 2.11632757317538
+    },
+    {
+      "episode": 215,
+      "type": "cinema",
+      "cost": 7690,
+      "epsilon": 0.08,
+      "loss": 1.5378142597200388
+    },
+    {
+      "episode": 216,
+      "type": "mall",
+      "cost": 7372,
+      "epsilon": 0.08,
+      "loss": 1.6612034818839847
+    },
+    {
+      "episode": 217,
+      "type": "office",
+      "cost": 8180,
+      "epsilon": 0.08,
+      "loss": 1.4815770133310169
+    },
+    {
+      "episode": 218,
+      "type": "cinema",
+      "cost": 7161,
+      "epsilon": 0.08,
+      "loss": 1.7633567427045171
+    },
+    {
+      "episode": 219,
+      "type": "mall",
+      "cost": 7979,
+      "epsilon": 0.08,
+      "loss": 1.339585280490868
+    },
+    {
+      "episode": 220,
+      "type": "office",
+      "cost": 7100,
+      "epsilon": 0.08,
+      "loss": 1.3453599418369455
+    },
+    {
+      "episode": 221,
+      "type": "cinema",
+      "cost": 8237,
+      "epsilon": 0.08,
+      "loss": 1.3626931017497381
+    },
+    {
+      "episode": 222,
+      "type": "mall",
+      "cost": 8266,
+      "epsilon": 0.08,
+      "loss": 1.513355117278452
+    },
+    {
+      "episode": 223,
+      "type": "office",
+      "cost": 7340,
+      "epsilon": 0.08,
+      "loss": 1.3390600021879255
+    },
+    {
+      "episode": 224,
+      "type": "cinema",
+      "cost": 8045,
+      "epsilon": 0.08,
+      "loss": 1.5051492950363006
+    },
+    {
+      "episode": 225,
+      "type": "mall",
+      "cost": 8254,
+      "epsilon": 0.08,
+      "loss": 1.2464175765947891,
+      "validationCost": 7539.666666666667
+    },
+    {
+      "episode": 226,
+      "type": "office",
+      "cost": 7849,
+      "epsilon": 0.08,
+      "loss": 1.766451477438169
+    },
+    {
+      "episode": 227,
+      "type": "cinema",
+      "cost": 7816,
+      "epsilon": 0.08,
+      "loss": 1.421097620436163
+    },
+    {
+      "episode": 228,
+      "type": "mall",
+      "cost": 7742,
+      "epsilon": 0.08,
+      "loss": 1.7011335822239733
+    },
+    {
+      "episode": 229,
+      "type": "office",
+      "cost": 8333,
+      "epsilon": 0.08,
+      "loss": 1.359277523776138
+    },
+    {
+      "episode": 230,
+      "type": "cinema",
+      "cost": 7830,
+      "epsilon": 0.08,
+      "loss": 1.4159851678646462
+    },
+    {
+      "episode": 231,
+      "type": "mall",
+      "cost": 7184,
+      "epsilon": 0.08,
+      "loss": 1.5437379495223749
+    },
+    {
+      "episode": 232,
+      "type": "office",
+      "cost": 7766,
+      "epsilon": 0.08,
+      "loss": 1.8990953144294005
+    },
+    {
+      "episode": 233,
+      "type": "cinema",
+      "cost": 7530,
+      "epsilon": 0.08,
+      "loss": 1.547621648234707
+    },
+    {
+      "episode": 234,
+      "type": "mall",
+      "cost": 7057,
+      "epsilon": 0.08,
+      "loss": 1.8746560187612784
+    },
+    {
+      "episode": 235,
+      "type": "office",
+      "cost": 7857,
+      "epsilon": 0.08,
+      "loss": 1.742906229702177
+    },
+    {
+      "episode": 236,
+      "type": "cinema",
+      "cost": 7120,
+      "epsilon": 0.08,
+      "loss": 1.510947773817092
+    },
+    {
+      "episode": 237,
+      "type": "mall",
+      "cost": 7994,
+      "epsilon": 0.08,
+      "loss": 1.8095946232846003
+    },
+    {
+      "episode": 238,
+      "type": "office",
+      "cost": 7576,
+      "epsilon": 0.08,
+      "loss": 1.7100665256402332
+    },
+    {
+      "episode": 239,
+      "type": "cinema",
+      "cost": 7777,
+      "epsilon": 0.08,
+      "loss": 1.6191946905820602
+    },
+    {
+      "episode": 240,
+      "type": "mall",
+      "cost": 7201,
+      "epsilon": 0.08,
+      "loss": 1.6298255867581781
+    },
+    {
+      "episode": 241,
+      "type": "office",
+      "cost": 7832,
+      "epsilon": 0.08,
+      "loss": 1.688406860861863
+    },
+    {
+      "episode": 242,
+      "type": "cinema",
+      "cost": 8169,
+      "epsilon": 0.08,
+      "loss": 1.5137578658171922
+    },
+    {
+      "episode": 243,
+      "type": "mall",
+      "cost": 7988,
+      "epsilon": 0.08,
+      "loss": 1.4864926448587799
+    },
+    {
+      "episode": 244,
+      "type": "office",
+      "cost": 7514,
+      "epsilon": 0.08,
+      "loss": 1.6834626595636937
+    },
+    {
+      "episode": 245,
+      "type": "cinema",
+      "cost": 7709,
+      "epsilon": 0.08,
+      "loss": 1.5773758506361453
+    },
+    {
+      "episode": 246,
+      "type": "mall",
+      "cost": 7938,
+      "epsilon": 0.08,
+      "loss": 1.6426842963742811
+    },
+    {
+      "episode": 247,
+      "type": "office",
+      "cost": 7740,
+      "epsilon": 0.08,
+      "loss": 1.666716585392809
+    },
+    {
+      "episode": 248,
+      "type": "cinema",
+      "cost": 7796,
+      "epsilon": 0.08,
+      "loss": 1.8326247362580854
+    },
+    {
+      "episode": 249,
+      "type": "mall",
+      "cost": 7439,
+      "epsilon": 0.08,
+      "loss": 1.872851169041313
+    },
+    {
+      "episode": 250,
+      "type": "office",
+      "cost": 7073,
+      "epsilon": 0.08,
+      "loss": 1.5123413062747741,
+      "validationCost": 7530
+    }
+  ]
+}

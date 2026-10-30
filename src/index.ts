@@ -1,3 +1,5 @@
+import { createAirportScenario } from "./twin/airport.js";
+import { validateSnapshot, type FloorId } from "./data/incheon.js";
 import path from "node:path";
 import { readFile, mkdir, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
@@ -19,6 +21,7 @@ async function main() {
     args,
     allowPositionals: true,
     options: {
+      floor: { type: "string", default: "ground" },
       scenario: { type: "string", default: "cinema" },
       strategy: { type: "string", default: "nearest" },
       seed: { type: "string", default: "42" },
@@ -30,36 +33,64 @@ async function main() {
   });
   if (values.help) {
     console.log(
-      "pnpm start -- [vehicles.csv] [--scenario office|cinema|mall] [--strategy nearest|random|rule|rl] [--seed 42] [--count 70] [--uncertainty 6] [--output result.json]",
+      "pnpm start -- [vehicles.csv] [--scenario office|cinema|mall|incheon] [--floor ground|b1|b2] [--strategy nearest|random|rule|rl] [--seed 42] [--count 70] [--uncertainty 6] [--output result.json]",
     );
     return;
   }
   if (positionals.length > 1) throw new Error("CSV 경로는 하나만 지정하세요.");
-  if (!scenarioTypes.includes(values.scenario as ScenarioType))
-    throw new Error("지원하는 시나리오: office, cinema, mall");
+  if (
+    values.scenario !== "incheon" &&
+    !scenarioTypes.includes(values.scenario as ScenarioType)
+  )
+    throw new Error("지원하는 시나리오: office, cinema, mall, incheon");
   if (!["nearest", "random", "rule", "rl"].includes(values.strategy!))
     throw new Error("지원하는 전략: nearest, random, rule, rl");
   const seed = Number(values.seed);
   if (!Number.isSafeInteger(seed)) throw new Error("seed는 정수여야 합니다.");
+  if (!["ground", "b1", "b2"].includes(values.floor!))
+    throw new Error("층은 ground, b1, b2 중 선택하세요.");
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
   const scenario = positionals[0]
     ? scenarioFromCsv(
         await readFile(path.resolve(positionals[0]), "utf8"),
         path.basename(positionals[0]),
         seed,
       )
-    : createScenario(
-        values.scenario as ScenarioType,
-        seed,
-        Number(values.count),
-        Number(values.uncertainty),
-      );
-  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+    : values.scenario === "incheon"
+      ? createAirportScenario(
+          validateSnapshot(
+            JSON.parse(
+              await readFile(
+                path.join(root, "public/data/incheon-t1.json"),
+                "utf8",
+              ),
+            ),
+          ),
+          values.floor as FloorId,
+          seed,
+          Number(values.count),
+          Number(values.uncertainty),
+        )
+      : createScenario(
+          values.scenario as ScenarioType,
+          seed,
+          Number(values.count),
+          Number(values.uncertainty),
+        );
   const strategy =
     values.strategy === "rl"
       ? rlStrategy(
           parsePolicy(
             JSON.parse(
-              await readFile(path.join(root, "public/policy.json"), "utf8"),
+              await readFile(
+                path.join(
+                  root,
+                  scenario.layout.spots.length === 80
+                    ? "public/policy-airport.json"
+                    : "public/policy.json",
+                ),
+                "utf8",
+              ),
             ),
           ),
         )
