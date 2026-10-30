@@ -82,6 +82,7 @@ export function createAirportScenario(
     };
   }).sort((a, b) => a.arrivalTime - b.arrivalTime);
   return {
+    layoutFamily: "airport",
     id: "incheon",
     title: `인천공항 T1 · ${floor.name}`,
     description:

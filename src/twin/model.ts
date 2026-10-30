@@ -23,6 +23,7 @@ export interface Layout {
   spots: Spot[];
   entrance: string;
   exit: string;
+  exits?: string[];
 }
 export interface Demand {
   vehicleId: string;
@@ -41,6 +42,7 @@ export interface Scenario {
   observationEnd: number;
   vehicles: Demand[];
   layout: Layout;
+  layoutFamily?: "standard" | "asymmetric" | "airport";
   initialParked?: {
     vehicleId: string;
     spotId: number;
@@ -79,7 +81,10 @@ export interface Trip {
   route: string[];
   segments: Segment[];
   parkedAt: number | null;
+  /** Original desired request time, never moved after parking. */
   departureRequestedAt: number | null;
+  /** Physical departure can start only after parking and minimum dwell. */
+  departureReadyAt: number | null;
   leftSpotAt: number | null;
   exitedAt: number | null;
   waitingTicks: number;
@@ -107,6 +112,12 @@ export interface Metrics {
   rejectionRate: number;
   averageParkingTime: number;
   averageExitTime: number;
+  averageScheduledExitTime: number;
+  averageScheduleDelay: number;
+  lateDepartureVehicles: number;
+  operatingCost: number;
+  operatingScale: number;
+  serviceRate: number;
   averageDistance: number;
   totalDelay: number;
   averageOccupancyRate: number;
@@ -115,7 +126,17 @@ export interface Metrics {
   observationEnd: number;
   cost: number;
 }
+export interface DecisionRecord {
+  vehicleId: string;
+  time: number;
+  spotId: number;
+  observation: Observation;
+  qValues: number[] | null;
+  featureMode: string;
+}
 export interface TwinResult {
+  objectiveVersion: "service-first-v2";
+  decisions: DecisionRecord[];
   scenario: Omit<Scenario, "vehicles">;
   strategy: string;
   trips: Trip[];
@@ -141,4 +162,9 @@ export interface Observation {
 export interface Strategy {
   id: string;
   choose(observation: Observation): number;
+  diagnose?(observation: Observation): {
+    observation: Observation;
+    qValues: number[];
+    featureMode: string;
+  };
 }

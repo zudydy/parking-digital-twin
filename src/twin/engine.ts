@@ -1,5 +1,7 @@
+import { OBJECTIVE_VERSION, REWARD_SCALE, serviceScore } from "./objective.js";
 import { routeLength, shortestPath } from "./layout.js";
 import type {
+  DecisionRecord,
   Demand,
   Edge,
   Frame,
@@ -20,13 +22,16 @@ interface Runtime {
   queueOrder?: number;
   readyAt?: number;
 }
-export const REJECTION_COST = 30;
 export const MAX_TICKS = 20000;
 
 export class TwinEnvironment {
   readonly scenario: Scenario;
   readonly frames: Frame[] = [];
   readonly trips: Trip[] = [];
+  readonly decisions: DecisionRecord[] = [];
+  private rejectedCount = 0;
+  private rewardCursor = 0;
+  private operatingScale = 1;
   private ordered: Demand[];
   private cursor = 0;
   private time = 0;
@@ -54,11 +59,38 @@ export class TwinEnvironment {
         spot.id,
         shortestPath(scenario.layout, scenario.layout.entrance, spot.node),
       );
+      const paths: Edge[][] = [];
+      for (const exit of scenario.layout.exits ?? [scenario.layout.exit]) {
+        try {
+          paths.push(shortestPath(scenario.layout, spot.node, exit));
+        } catch (error) {
+          if (
+            !(error instanceof Error) ||
+            !error.message.startsWith("경로가 없습니다:")
+          )
+            throw error;
+        }
+      }
+      if (!paths.length)
+        throw new Error(`주차면 ${spot.id}에서 도달 가능한 출구가 없습니다.`);
       this.outbound.set(
         spot.id,
-        shortestPath(scenario.layout, spot.node, scenario.layout.exit),
+        paths.sort((a, b) => routeLength(a) - routeLength(b))[0]!,
       );
     }
+    const maxTrip =
+      Math.max(
+        ...scenario.layout.spots.map(
+          (s) =>
+            routeLength(this.inbound.get(s.id)!) +
+            routeLength(this.outbound.get(s.id)!),
+        ),
+      ) + 1;
+    this.operatingScale = Math.max(
+      1,
+      (scenario.vehicles.length + (scenario.initialParked?.length ?? 0)) *
+        maxTrip,
+    );
     for (const initial of scenario.initialParked ?? []) {
       if (
         this.reserved.has(initial.spotId) ||
@@ -86,6 +118,7 @@ export class TwinEnvironment {
         segments: [],
         parkedAt: 0,
         departureRequestedAt: initial.departureRequest,
+        departureReadyAt: initial.departureRequest,
         leftSpotAt: null,
         exitedAt: null,
         waitingTicks: 0,
@@ -132,6 +165,9 @@ export class TwinEnvironment {
     if (
       !nodeIds.has(layout.entrance) ||
       !nodeIds.has(layout.exit) ||
+      (layout.exits !== undefined &&
+        (!layout.exits.length ||
+          layout.exits.some((exit) => !nodeIds.has(exit)))) ||
       layout.spots.some((s) => !nodeIds.has(s.node))
     )
       throw new Error("입구·출구·주차면 노드를 확인하세요.");
@@ -174,7 +210,11 @@ export class TwinEnvironment {
     return this.cursor >= this.ordered.length;
   }
   get cost() {
-    return this.totalCost;
+    return serviceScore(
+      this.rejectedCount,
+      this.totalCost,
+      this.operatingScale,
+    );
   }
   observation(): Observation | null {
     const vehicle = this.ordered[this.cursor];
@@ -221,13 +261,27 @@ export class TwinEnvironment {
     };
   }
   /** One action per arrival. A full lot is processed without requesting an action. */
-  step(spotId: number): { reward: number; done: boolean } {
+  step(
+    spotId: number,
+    diagnosis?: ReturnType<NonNullable<Strategy["diagnose"]>>,
+  ): { reward: number; done: boolean } {
     const demand = this.ordered[this.cursor];
     if (!demand) throw new Error("종료된 환경입니다.");
     const spot = this.scenario.layout.spots.find((s) => s.id === spotId);
     if (!spot || this.reserved.has(spotId))
       throw new Error(`사용 불가 주차면: ${spotId}`);
-    const previousCost = this.cost;
+    const previousCost = this.rewardCursor;
+    if (this.record)
+      this.decisions.push({
+        vehicleId: demand.vehicleId,
+        time: this.time,
+        spotId,
+        observation: structuredClone(
+          diagnosis?.observation ?? this.observation()!,
+        ),
+        qValues: diagnosis?.qValues ?? null,
+        featureMode: diagnosis?.featureMode ?? "full",
+      });
     const trip: Trip = {
       vehicleId: demand.vehicleId,
       arrivalTime: demand.arrivalTime,
@@ -240,7 +294,8 @@ export class TwinEnvironment {
       ),
       segments: [],
       parkedAt: null,
-      departureRequestedAt: null,
+      departureRequestedAt: demand.departureRequest ?? null,
+      departureReadyAt: null,
       leftSpotAt: null,
       exitedAt: null,
       waitingTicks: 0,
@@ -258,7 +313,9 @@ export class TwinEnvironment {
     this.enqueue(runtime);
     this.cursor++;
     this.prepareDecision();
-    return { reward: -(this.cost - previousCost) / 20, done: this.done };
+    const reward = -(this.cost - previousCost) * REWARD_SCALE;
+    this.rewardCursor = this.cost;
+    return { reward, done: this.done };
   }
   private enqueue(runtime: Runtime) {
     runtime.queuedAt = this.time;
@@ -280,13 +337,14 @@ export class TwinEnvironment {
         route: [],
         segments: [],
         parkedAt: null,
-        departureRequestedAt: null,
+        departureRequestedAt: demand.departureRequest ?? null,
+        departureReadyAt: null,
         leftSpotAt: null,
         exitedAt: null,
         waitingTicks: 0,
         distance: 0,
       });
-      this.totalCost += REJECTION_COST;
+      this.rejectedCount++;
       this.cursor++;
     }
     while (this.runtimes.some((r) => r.trip.phase !== "exited")) this.tick();
@@ -328,15 +386,15 @@ export class TwinEnvironment {
         r.trip.phase = "parked";
         r.trip.parkedAt = this.time;
         r.trip.departureRequestedAt =
-          r.demand.departureRequest === undefined
-            ? this.time + r.demand.duration
-            : Math.max(this.time + 1, r.demand.departureRequest);
+          r.demand.departureRequest ?? this.time + r.demand.duration;
+        r.trip.departureReadyAt = Math.max(
+          this.time + 1,
+          r.trip.departureRequestedAt,
+        );
+        this.totalCost += r.trip.departureReadyAt - r.trip.departureRequestedAt;
         this.occupied.add(r.trip.spotId!);
       }
-      if (
-        r.trip.phase === "parked" &&
-        r.trip.departureRequestedAt! <= this.time
-      ) {
+      if (r.trip.phase === "parked" && r.trip.departureReadyAt! <= this.time) {
         r.trip.phase = "outbound";
         r.path = this.outbound.get(r.trip.spotId!)!;
         r.index = 0;
@@ -430,6 +488,8 @@ export class TwinEnvironment {
         : 0;
     const { vehicles: _, ...scenario } = this.scenario;
     return {
+      objectiveVersion: OBJECTIVE_VERSION,
+      decisions: this.decisions,
       scenario,
       strategy,
       trips: this.trips,
@@ -442,7 +502,21 @@ export class TwinEnvironment {
           ? ((demandTrips.length - assigned.length) / demandTrips.length) * 100
           : 0,
         averageParkingTime: mean((t) => t.parkedAt! - t.arrivalTime),
-        averageExitTime: mean((t) => t.exitedAt! - t.departureRequestedAt!),
+        averageExitTime: mean((t) => t.exitedAt! - t.departureReadyAt!),
+        averageScheduledExitTime: mean(
+          (t) => t.exitedAt! - t.departureRequestedAt!,
+        ),
+        averageScheduleDelay: mean(
+          (t) => t.departureReadyAt! - t.departureRequestedAt!,
+        ),
+        lateDepartureVehicles: assigned.filter(
+          (t) => t.departureReadyAt! > t.departureRequestedAt!,
+        ).length,
+        operatingCost: this.totalCost,
+        operatingScale: this.operatingScale,
+        serviceRate: demandTrips.length
+          ? (assigned.length / demandTrips.length) * 100
+          : 0,
         averageDistance: mean((t) => t.distance),
         totalDelay: this.trips.reduce((sum, t) => sum + t.waitingTicks, 0),
         averageOccupancyRate:
@@ -464,7 +538,12 @@ export function simulateTwin(
   record = true,
 ): TwinResult {
   const environment = new TwinEnvironment(scenario, record);
-  while (!environment.done)
-    environment.step(strategy.choose(environment.observation()!));
+  while (!environment.done) {
+    const observation = environment.observation()!;
+    environment.step(
+      strategy.choose(observation),
+      record ? strategy.diagnose?.(observation) : undefined,
+    );
+  }
   return environment.result(strategy.id);
 }

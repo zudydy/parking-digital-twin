@@ -52,6 +52,7 @@ export function createScenario(
     };
   }).sort((a, b) => a.arrivalTime - b.arrivalTime);
   return {
+    layoutFamily: "standard",
     id: type,
     title: labels[type][0]!,
     description: labels[type][1]!,

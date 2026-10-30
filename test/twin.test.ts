@@ -29,7 +29,8 @@ describe("통로 기반 디지털 트윈", () => {
     assert.equal(result.metrics.averageExitTime, 9);
     assert.equal(result.metrics.averageDistance, 11);
     assert.equal(result.metrics.totalDelay, 0);
-    assert.equal(result.metrics.cost, 12);
+    assert.equal(result.metrics.operatingCost, 12);
+    assert.equal(result.metrics.cost, 0.5);
     assert.equal(result.metrics.averageOccupancyRate, (3 / (20 * 30)) * 100);
     assert.equal(result.frames.at(-1)?.vehicles.length, 0);
   });
@@ -90,12 +91,18 @@ describe("통로 기반 디지털 트윈", () => {
       ).reward;
     const result = environment.result("nearest");
     assert.ok(result.metrics.rejected > 0);
-    assert.ok(Math.abs(reward * -20 - result.metrics.cost) < 1e-8);
+    assert.ok(Math.abs(reward / -100 - result.metrics.cost) < 1e-8);
     assert.equal(
-      result.metrics.cost,
+      result.metrics.operatingCost,
       result.metrics.assigned * 12 +
         result.metrics.totalDelay +
-        result.metrics.rejected * 30,
+        result.trips
+          .filter((t) => t.spotId !== null)
+          .reduce(
+            (sum, t) =>
+              sum + (t.departureReadyAt ?? 0) - (t.departureRequestedAt ?? 0),
+            0,
+          ),
     );
   });
   it("관찰값에 실제 출차시간이나 미래 수요를 노출하지 않는다", () => {

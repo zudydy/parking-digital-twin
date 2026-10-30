@@ -1,3 +1,4 @@
+import { OBJECTIVE_VERSION } from "../twin/objective.js";
 import type { Observation, Strategy } from "../twin/model.js";
 import { seededRandom } from "../twin/strategies.js";
 
@@ -12,7 +13,10 @@ export interface Weights {
   b2: number[];
 }
 export interface PolicyFile {
-  version: 1;
+  version: 2;
+  objective: typeof OBJECTIVE_VERSION;
+  featureMode: "full" | "no-departure";
+  environment: "standard" | "airport" | "asymmetric";
   encoding: typeof ENCODING | "parking-80-v1";
   network?: { inputs: number; hidden: number; actions: number };
   algorithm: "DQN";
@@ -27,6 +31,8 @@ export interface PolicyFile {
     validationSeeds: number[];
     selectedEpisode: number;
     validationCost: number;
+    validationRejectionRate: number;
+    validationOperatingPerVehicle: number;
   };
 }
 export interface Transition {
@@ -37,7 +43,27 @@ export interface Transition {
   available: number[];
 }
 const bounded = (n: number) => Math.max(-3, Math.min(3, n));
-export function encode(observation: Observation, actions = ACTIONS): number[] {
+export function agentObservation(
+  observation: Observation,
+  featureMode: "full" | "no-departure" = "full",
+): Observation {
+  return featureMode === "full"
+    ? observation
+    : {
+        ...observation,
+        estimatedDeparture: observation.time,
+        candidates: observation.candidates.map((c) => ({
+          ...c,
+          departurePressure: 0,
+        })),
+      };
+}
+export function encode(
+  observation: Observation,
+  actions = ACTIONS,
+  featureMode: "full" | "no-departure" = "full",
+): number[] {
+  observation = agentObservation(observation, featureMode);
   if (
     observation.candidates.length !== actions ||
     observation.candidates.some((c, i) => c.spotId !== i + 1)
@@ -171,7 +197,10 @@ export function parsePolicy(value: unknown): PolicyFile {
   const p = value as PolicyFile;
   if (
     !p ||
-    p.version !== 1 ||
+    p.version !== 2 ||
+    p.objective !== OBJECTIVE_VERSION ||
+    !["full", "no-departure"].includes(p.featureMode) ||
+    !["standard", "airport", "asymmetric"].includes(p.environment) ||
     (p.encoding !== ENCODING && p.encoding !== "parking-80-v1") ||
     p.algorithm !== "DQN" ||
     !p.weights ||
@@ -211,10 +240,18 @@ export function rlStrategy(policy: PolicyFile): Strategy {
   const network = new QNetwork(1, parsePolicy(policy).weights, policy.network);
   return {
     id: "rl",
+    diagnose(observation) {
+      const observed = agentObservation(observation, policy.featureMode);
+      return {
+        observation: observed,
+        qValues: network.forward(encode(observed, network.actions)).q,
+        featureMode: policy.featureMode,
+      };
+    },
     choose(observation) {
       return observation.candidates[
         network.action(
-          encode(observation, network.actions),
+          encode(observation, network.actions, policy.featureMode),
           availableActions(observation),
         )
       ]!.spotId;
