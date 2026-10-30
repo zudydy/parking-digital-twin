@@ -1,3 +1,4 @@
+import { createAsymmetricScenario } from "./twin/variants.js";
 import { createAirportScenario } from "./twin/airport.js";
 import { validateSnapshot, type FloorId } from "./data/incheon.js";
 import path from "node:path";
@@ -33,16 +34,19 @@ async function main() {
   });
   if (values.help) {
     console.log(
-      "pnpm start -- [vehicles.csv] [--scenario office|cinema|mall|incheon] [--floor ground|b1|b2] [--strategy nearest|random|rule|rl] [--seed 42] [--count 70] [--uncertainty 6] [--output result.json]",
+      "pnpm start -- [vehicles.csv] [--scenario office|cinema|mall|incheon|asymmetric] [--floor ground|b1|b2] [--strategy nearest|random|rule|rl] [--seed 42] [--count 70] [--uncertainty 6] [--output result.json]",
     );
     return;
   }
   if (positionals.length > 1) throw new Error("CSV 경로는 하나만 지정하세요.");
   if (
     values.scenario !== "incheon" &&
+    values.scenario !== "asymmetric" &&
     !scenarioTypes.includes(values.scenario as ScenarioType)
   )
-    throw new Error("지원하는 시나리오: office, cinema, mall, incheon");
+    throw new Error(
+      "지원하는 시나리오: office, cinema, mall, incheon, asymmetric",
+    );
   if (!["nearest", "random", "rule", "rl"].includes(values.strategy!))
     throw new Error("지원하는 전략: nearest, random, rule, rl");
   const seed = Number(values.seed);
@@ -71,12 +75,19 @@ async function main() {
           Number(values.count),
           Number(values.uncertainty),
         )
-      : createScenario(
-          values.scenario as ScenarioType,
-          seed,
-          Number(values.count),
-          Number(values.uncertainty),
-        );
+      : values.scenario === "asymmetric"
+        ? createAsymmetricScenario(
+            "cinema",
+            seed,
+            Number(values.count),
+            Number(values.uncertainty),
+          )
+        : createScenario(
+            values.scenario as ScenarioType,
+            seed,
+            Number(values.count),
+            Number(values.uncertainty),
+          );
   const strategy =
     values.strategy === "rl"
       ? rlStrategy(
@@ -87,7 +98,9 @@ async function main() {
                   root,
                   scenario.layout.spots.length === 80
                     ? "public/policy-airport.json"
-                    : "public/policy.json",
+                    : scenario.layoutFamily === "asymmetric"
+                      ? "public/policy-asymmetric.json"
+                      : "public/policy.json",
                 ),
                 "utf8",
               ),
@@ -108,7 +121,7 @@ async function main() {
     `평균 총 이동거리 ${m.averageDistance.toFixed(2)} · 누적 지연 ${m.totalDelay} tick`,
   );
   console.log(
-    `시간가중 점유율 ${m.averageOccupancyRate.toFixed(2)}% · 누적 비용 ${m.cost}`,
+    `시간가중 점유율 ${m.averageOccupancyRate.toFixed(2)}% · 운영비용 ${m.operatingCost} tick · 서비스 우선 점수 ${m.cost.toFixed(6)}`,
   );
   if (values.output) {
     const output = path.resolve(values.output);
@@ -116,7 +129,7 @@ async function main() {
     await writeFile(
       output,
       JSON.stringify(
-        { schemaVersion: 1, input: scenario, ...result },
+        { schemaVersion: 2, input: scenario, ...result },
         null,
         2,
       ) + "\n",

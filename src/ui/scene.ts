@@ -147,32 +147,43 @@ export function buildScene(
   lot.position.set(width / 2, -0.13, depth / 2);
   lot.receiveShadow = true;
   scene.add(lot);
-  const roadBoxes = [];
-  for (let row = 1; row <= 4; row++)
-    roadBoxes.push({
-      x: width / 2,
+  const roadBoxes = layout.edges.map((edge) => {
+    const a = layout.nodes.find((n) => n.id === edge.from)!,
+      b = layout.nodes.find((n) => n.id === edge.to)!;
+    const p = worldPoint(a.x, a.y),
+      q = worldPoint(b.x, b.y);
+    return {
+      x: (p.x + q.x) / 2,
       y: 0.02,
-      z: row * 10,
-      w: width + 5,
+      z: (p.z + q.z) / 2,
+      w: Math.abs(q.x - p.x) + 4.1,
       h: 0.06,
-      d: 4.1,
-    });
-  roadBoxes.push(
-    { x: 0, y: 0.02, z: 17, w: 4.5, h: 0.06, d: 61 },
-    { x: width, y: 0.02, z: 27, w: 4.5, h: 0.06, d: 55 },
-  );
+      d: Math.abs(q.z - p.z) + 4.1,
+    };
+  });
+  const entry = layout.nodes.find((n) => n.id === layout.entrance)!;
+  roadBoxes.push({ x: entry.x * 3.2, y: 0.02, z: -5, w: 4.5, h: 0.06, d: 14 });
   const roads = new THREE.Mesh(mergeBoxes(roadBoxes), asphalt);
   roads.receiveShadow = true;
   scene.add(roads);
   const roadLine: number[] = [];
   const segment = (x: number, z: number, x2: number, z2: number) =>
     roadLine.push(x, 0.08, z, x2, 0.08, z2);
-  for (let row = 1; row <= 4; row++)
-    for (let x = 2; x < width - 1; x += 3)
-      segment(x, row * 10, x + 1.2, row * 10);
-  for (let z = -10; z < 51; z += 3) {
-    segment(0, z, 0, z + 1.1);
-    segment(width, z, width, z + 1.1);
+  for (const edge of layout.edges) {
+    const a = layout.nodes.find((n) => n.id === edge.from)!,
+      b = layout.nodes.find((n) => n.id === edge.to)!,
+      p = worldPoint(a.x, a.y),
+      q = worldPoint(b.x, b.y),
+      length = Math.hypot(q.x - p.x, q.z - p.z);
+    for (let distance = 0.4; distance < length - 0.4; distance += 3) {
+      const end = Math.min(length - 0.3, distance + 1.1);
+      segment(
+        p.x + ((q.x - p.x) * distance) / length,
+        p.z + ((q.z - p.z) * distance) / length,
+        p.x + ((q.x - p.x) * end) / length,
+        p.z + ((q.z - p.z) * end) / length,
+      );
+    }
   }
   const roadLines = new THREE.LineSegments(
     new THREE.BufferGeometry().setAttribute(
@@ -393,8 +404,16 @@ export function buildScene(
   const exitSign = label("EXIT  →", 6, "#fff4dd", "#b28b50");
   exitSign.rotation.x = -Math.PI / 2;
   exitSign.rotation.z = Math.PI / 2;
-  exitSign.position.set(width, 0.11, 49);
+  const primaryExit = layout.nodes.find((n) => n.id === layout.exit)!;
+  exitSign.position.set(primaryExit.x * 3.2, 0.11, primaryExit.y * 10 - 1);
   scene.add(exitSign);
+  for (const id of (layout.exits ?? []).filter((id) => id !== layout.exit)) {
+    const exit = layout.nodes.find((n) => n.id === id)!;
+    const sign = label("EXIT B →", 4, "#fff4dd", "#b28b50");
+    sign.rotation.x = -Math.PI / 2;
+    sign.position.set(exit.x * 3.2, 0.11, exit.y * 10);
+    scene.add(sign);
+  }
   // Shared car geometry: sculpted body, glass cabin, roof, four tires, LED lamps.
   const bodyGeo = new RoundedBoxGeometry(2.7, 0.45, 1.25, 3, 0.17);
   const roofGeometries = [

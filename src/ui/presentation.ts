@@ -14,7 +14,7 @@ export const phaseLabels: Record<string, string> = {
   rejected: "미배정",
 };
 export const fmt = (value: number, digits = 1) =>
-  value.toLocaleString("ko-KR", {
+  (Math.abs(value) < 0.5 * 10 ** -digits ? 0 : value).toLocaleString("ko-KR", {
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
   });
