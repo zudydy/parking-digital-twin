@@ -20,11 +20,13 @@
     "train:airport": "node --import tsx scripts/train.ts 250 20261030 --airport",
     "evaluate:airport": "node --import tsx scripts/evaluate.ts 30 --airport",
     "research:train": "node --import tsx scripts/train-research.ts",
-    "research:evaluate": "node --import tsx scripts/evaluate-research.ts",
+    "research:evaluate": "node --import tsx scripts/evaluate-research.ts && node --import tsx scripts/summarize-research.ts",
     "research:publish": "node --import tsx scripts/publish-policies.ts",
     "collect:airport": "node --import tsx scripts/collect-airport.ts",
     "figures": "python3 scripts/report_figures.py",
-    "research:verify": "node --import tsx scripts/verify-research.ts"
+    "research:verify": "node --import tsx scripts/verify-research.ts",
+    "research:summarize": "node --import tsx scripts/summarize-research.ts",
+    "research:provenance": "node --import tsx scripts/provenance.ts"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

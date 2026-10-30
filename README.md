@@ -1,77 +1,79 @@
 # Parking Twin · 2.5D Studio
 
-**v0.3:** 인천공항 공식 주차 현황을 사용하는 80면 축소 모델과 직교 3D 시뮬레이션 스튜디오를 제공합니다. 기본 화면은 인천공항 T1이며 기존 20면 합성 실험도 선택할 수 있습니다.
-
-강화학습 기반 동적 주차 공간 할당을 실험하는 웹 디지털 트윈 플랫폼입니다.
-동일한 합성 차량 수요를 Nearest, Random, Rule-based, 학습된 DQN 정책으로 실행하고,
-차량의 이동·통로 대기·주차·출차와 성능 차이를 비교합니다.
+**v0.4:** 인천공항 공식 주차 현황, 2.5D 차량 시뮬레이션, 배정 근거 검사기와 반복 실험 분석을 제공하는 주차 공간 할당 플랫폼입니다. 최종보고서 본문은 작성하지 않았으며, 실험 원자료·그림·재현 규약을 준비했습니다.
 
 ## 실행
 
-Node.js 22.12 이상과 pnpm이 필요합니다. 저장소의 `packageManager` 기준은 pnpm 12.3.4입니다.
+Node.js 22.12 이상, pnpm 12.3.4, WebGL2 브라우저가 필요합니다.
 
 ```bash
 pnpm install --frozen-lockfile
 pnpm dev
-```
-
-[로컬 시뮬레이터](http://127.0.0.1:5173/)에서 실행합니다. 저장소에 학습된 `public/policy.json`이 포함되어 있어 웹 시연 전에 재학습할 필요가 없습니다. 저장 스냅샷으로 외부 연결 없이 시연할 수 있습니다. 공식 데이터 갱신은 dev/preview의 서버 API를 사용하며, DB나 인증키·외부 폰트는 필요하지 않습니다. 3D 화면은 WebGL2 지원 브라우저가 필요합니다.
-
-운영 빌드를 확인하려면 다음을 실행합니다.
-
-```bash
+# 운영 빌드
 pnpm build
 pnpm preview
 ```
 
-## 2.5D 스튜디오와 인천공항
+기본 [로컬 화면](http://127.0.0.1:5173/)에서 실행합니다. 정책·공식 저장 스냅샷·반복 실험 결과가 포함되어 재학습이나 외부 연결 없이 시연할 수 있습니다. 공식 현황 갱신과 관측 수집에는 dev/preview 서버와 외부 연결이 필요합니다. 정적 호스팅에서는 번들 관측 자료로 대체합니다.
 
-- 차체·경사진 유리·휠·전후등을 갖춘 세단/SUV, 회전·주차·후진 출차 보간
-- 직교 카메라, 곡선형 터미널·조경·조명·그림자, 주간/야간
-- 드래그 회전·휠 확대, 탑뷰·시점 복원·선택 차량 따라가기
-- 큰 몰입 화면과 Nearest/RL 분할 화면
-- T1 층별 **공식 잔여 대수·점유율·갱신 시각**, 수동 갱신과 실패 시 스냅샷 유지
-- H/A·C/D 상대 배치(지하2층 H/A), 80면 축소 모델과 점유율 기반 초기 주차
-- 80면 전용 DQN 250회 학습과 360회 독립 평가
+## 구현 범위
 
-공식 관측값과 합성 차량·개념 배치를 구분합니다. 실제 공항의 모든 주차면이나 개별 차량 기록을 재현한 것은 아닙니다. [공식 데이터·모델 규약](docs/incheon-data.md)에 출처와 수집값, 변환·학습·지표 정의를 기록했습니다.
+- Three.js 직교 3D의 세단/SUV·조향·주차·후진 출차, 터미널·조명·그림자, 주야간·회전·확대·탑뷰·차량 추적
+- Nearest·Random·Rule-based·DQN, 동일 수요의 동기 비교, 통로 용량·FIFO·이동 중 예약
+- 기본 20면, 인천공항 T1 80면 축소 모델, 거리와 병목이 다른 비대칭 출구 20면
+- 공항 세 층의 공식 잔여 대수·점유율·관측 시각, 새 관측 저장·중복 제거·시계열 비교
+- 출차정보 사용/제외 정책 전환, 배정 직전 관찰·후보·Q값 검사기
+- 미배정 우선 목적, 원래 출차 요청·물리적 준비·일정 지연 분리
+- 독립 학습 seed 3개, 별도 학습한 출차정보 제외 실험, 학습 전 정책, 교통 seed 30개의 대응 비교
+- 수요×예측 오차 민감도, 학습·검증 곡선, seed 편차와 탐색적 95% 대응 bootstrap 구간
+- 웹 CSV 입력 검증, 차량별 CSV·결과 JSON, 전체 평가 CSV.gz, 보고서용 300 dpi PNG·SVG
+
+공식 데이터는 층별 집계 현황입니다. 개별 차량·정밀 도면·도착과 출차 흐름은 합성 가정이며 실제 운영 효과를 입증한 시스템은 아닙니다. [모델 규약](docs/simulation-model.md), [공항 데이터](docs/incheon-data.md), [실험과 결과](docs/research-results.md)를 참조하세요.
+
+## 재현
 
 ```bash
-pnpm refresh:airport
-pnpm train:airport
-pnpm evaluate:airport
+pnpm test
+pnpm format:check
+# 3환경 × 2입력 조건 × 3학습 seed, 각 200 episodes
+pnpm research:train 200
+pnpm research:publish
+# 29,160회: 3환경 × 3수요유형/층 × 3규모 × 3오차 × 30교통 seed × 12실행
+pnpm research:evaluate
+pnpm research:verify
+# matplotlib이 있는 Python 환경
+python3 -m pip install matplotlib
+pnpm figures
+pnpm research:provenance
+# 실제 공식 관측 8회, 간격 60초 (유한 수집)
+pnpm collect:airport 8 60000
+```
+
+`research:train 200 --resume`는 저장된 동일 설정의 정책·로그를 재사용합니다. 고정 공항 스냅샷을 바꾼 경우 새 학습을 하세요. 테스트 seed로 정책을 선택하지 않습니다. 평가에 모든 학습 seed를 포함하고, 화면용 대표 정책만 검증 성능으로 선택합니다. 구체적 설정과 해시는 manifest와 provenance에 보존합니다. `pnpm refresh:airport`는 학습용 고정 스냅샷을 바꾸므로 기존 결과와 구별하세요.
+
+| 파일                               | 내용                                 |
+| ---------------------------------- | ------------------------------------ |
+| `public/research/analysis.json`    | 조건별 평균·편차·대응 구간·교통별 점 |
+| `public/research/runs.csv.gz`      | 29,160회 원자료와 입력 해시          |
+| `public/research/manifest.json`    | 실험 설정·공항 스냅샷·18개 정책 해시 |
+| `public/research/published.json`   | 화면용 정책의 검증 선택 기록         |
+| `public/research/training/`        | 18개 학습 로그                       |
+| `public/research/figures/`         | 재생성 가능한 PNG·SVG 그림           |
+| `experiments/v0.4/policies/`       | 전체 학습 가중치                     |
+| `data/observations/incheon.jsonl`  | 실제 관측 시각의 원자료              |
+| `public/data/incheon-history.json` | 오프라인 시계열 자료                 |
+| `experiments/archive/v0.3/`        | 구 목적함수의 과거 실험              |
+
+## CLI와 CSV
+
+```bash
 pnpm start -- --scenario incheon --floor ground --strategy rl --count 180
-```
-
-`refresh:airport`는 저장 스냅샷을 갱신합니다. 아래 평가 결과는 각 파일에 기록된 고정 스냅샷 기준이며, 새 스냅샷으로 평가하면 결과가 달라집니다.
-
-## 공통 구현 기능
-
-- **공통 교통 엔진:** 합성 20면·공항 축소 80면, 단방향 통로 그래프, 통로 용량·FIFO 대기, 이동 중 예약, 출차 시 공간 해제
-- **전략 4종:** Nearest, seed 기반 Random, 혼잡·예상 출차 집중도를 고려하는 Rule-based, 실제 학습한 DQN
-- **수요 3종:** 사무실·공연장·쇼핑몰, 저/기본/고수요, 출차 예측 오차·seed 설정
-- **동기 비교:** Nearest와 선택 전략의 차량 이동·점유·대기를 같은 시간축에서 재생
-- **분석:** 차량 선택과 이동 경로, 통로 혼잡 표시, 점유·대기 타임라인, 주차·출차시간·거리·지연·미배정률·점유율·비용
-- **입출력:** 웹 CSV 업로드와 오류 안내, 양식 다운로드, 차량별 CSV·실험 JSON 다운로드
-- **재현:** 공통 엔진을 사용하는 CLI·학습·평가, 정책·실험 설정·학습 로그·독립 평가 결과 저장
-- **화면:** 데스크톱과 모바일 대응, 키보드 재생·탐색·차량 선택
-
-## CLI
-
-웹과 같은 엔진과 정책을 사용합니다.
-
-```bash
-pnpm start
-pnpm start -- --scenario office --strategy rl --seed 42
-pnpm start -- --scenario mall --strategy rule --count 110 --uncertainty 20
+pnpm start -- --scenario asymmetric --strategy rl --count 70
+pnpm start -- --scenario office --strategy rule --seed 42 --output output/result.json
 pnpm start -- data/vehicles.csv --strategy nearest
-pnpm start -- --strategy rl --output output/result.json
-pnpm start -- --help
 ```
 
-전략 이름은 `nearest`, `random`, `rule`, `rl`입니다. 시나리오는 `office`, `cinema`, `mall`입니다. CSV 경로를 지정하면 합성 수요 대신 해당 입력을 사용합니다.
-
-## CSV 형식
+시나리오는 office, cinema, mall, incheon, asymmetric이며 전략은 nearest, random, rule, rl입니다.
 
 ```csv
 vehicleId,arrivalTime,duration
@@ -79,72 +81,12 @@ CAR-001,0,30
 CAR-002,2,20
 ```
 
-- `vehicleId`: 빈 값·중복을 허용하지 않는 차량 ID
-- `arrivalTime`: 0 이상의 정수 도착 tick
-- `duration`: **주차 완료 이후** 체류시간, 1 이상의 정수
-- 헤더는 위 순서대로 사용합니다. 쉼표로 단순 구분하며 따옴표를 이용한 쉼표·줄바꿈 포함 필드는 지원하지 않습니다.
-- CSV의 예상 출차는 도착+체류시간+예상 이동 6 tick으로 구성합니다. 합성 수요는 실제 출차 요청과 별도의 예측 오차가 있는 예상 출차를 사용합니다.
-- 웹 업로드는 1MB·300대 이하, 최대 도착+체류시간 1,970 tick 이하로 제한합니다. 도로·시간 등 엔진 검증도 함께 적용됩니다.
+CSV의 duration은 주차 완료 후 체류시간입니다. 빈 값·중복 ID·잘못된 숫자를 거부하며 웹은 1MB·300대·최대 도착+체류 1,970 tick으로 제한합니다. 단순 쉼표 구분만 지원합니다. CSV는 기본 20면 레이아웃에서 실행합니다.
 
-중간 프로토타입은 입차 즉시 주차하고 `arrivalTime + duration`에 출차했습니다. 현재 버전은 이동·대기·주차 조작과 출구 이동을 계산하므로 이전 버전의 시간·점유율 수치와 직접 비교하면 안 됩니다. 기존 `src/simulation.ts`는 중간 버전 회귀 검증용으로 남아 있으며, 현재 웹·CLI·학습·평가는 `src/twin/`을 사용합니다.
+## 해석의 한계
 
-## 20면 합성 모델의 학습과 독립 평가
+기본·공항 환경은 모든 면의 총 이동거리가 같아 거리 절감 효과를 평가하기 어렵습니다. 비대칭 모델은 이 제약을 다루는 별도 통제 실험입니다. 처리율을 먼저 확인하고 비용을 해석하세요. 배정된 신규 차량의 시간 평균과 배경 차량을 포함한 시스템 비용을 구분해야 합니다.
 
-```bash
-pnpm train 450 20261027
-pnpm evaluate 30
-```
+시간 tick은 실측 보정되지 않았습니다. 실제 관측 시계열의 MAE는 선택한 시간 대응 가정의 기술 통계이며 예측력 검증이 아닙니다. 학습 seed 3개의 신뢰구간은 탐색적이며 RL의 일반적 우수성이나 출차정보의 일관된 효과를 보장하지 않습니다. 실측 보정·장기 수집·다른 시설 검증은 후속 연구입니다.
 
-- 학습: 450 episode, seed 1000~1449의 세 시나리오를 순환하며 사용합니다.
-- 검증: seed 50001~50003을 각 시나리오에 사용해 checkpoint를 선택합니다.
-- 최종 평가: 학습·검증과 분리한 seed 90001~90030, 3개 시나리오 × 4개 전략 × 30회 = **360회**.
-- `pnpm train`은 정책과 학습 로그를, `pnpm evaluate`는 평가 파일을 갱신합니다. 평가를 다시 생성할 때는 정책과 함께 기록하세요.
-
-| 결과 파일                             | 내용                                       |
-| ------------------------------------- | ------------------------------------------ |
-| `public/policy-airport.json`          | 80면 공항용 학습 정책                      |
-| `experiments/evaluation-airport.json` | 공항 세 층 360회 평가                      |
-| `experiments/training-airport.json`   | 공항 학습 로그·관측 스냅샷                 |
-| `public/policy.json`                  | 학습된 Q 신경망 가중치와 학습·선택 설정    |
-| `experiments/training.json`           | episode별 비용·손실·검증 비용              |
-| `experiments/evaluation.json`         | 정책·입력 해시, 실행별 지표, 평균·표준편차 |
-| `experiments/evaluation.csv`          | 360회 실행 결과의 CSV                      |
-
-저장된 평가의 평균 누적 비용은 다음과 같습니다. 낮을수록 유리합니다.
-
-| 시나리오 | Nearest | Random | Rule-based |    DQN |
-| -------- | ------: | -----: | ---------: | -----: |
-| 사무실   |  1552.6 | 1548.0 |     1548.5 | 1549.0 |
-| 공연장   |  1436.2 | 1434.5 |     1432.8 | 1434.4 |
-| 쇼핑몰   |   871.9 |  872.3 |      874.0 |  872.7 |
-
-차이는 작으며 **RL이 항상 우수하다는 결과가 아닙니다.** 단일 학습 seed의 결과이고, 수요 seed별 반복 평가를 수행했습니다. 학습 seed를 여러 개 바꾼 안정성 검증이나 실제 시설의 효과를 검증한 것은 아닙니다.
-
-## 모델의 범위
-
-시간은 실제 초·분으로 보정하지 않은 추상 tick입니다. 통로 용량과 노드 대기로 혼잡을 모델링하며 교차로 충돌·차량 길이·차간거리는 반영하지 않습니다. 기본 20면은 입구→출구 총 이동거리가 11, 공항 80면 모델은 38로 같아, 입차/출차 시간과 지연 차이를 중심으로 비교합니다. 만차 시 대기·재시도 없이 미배정 처리합니다.
-
-주차·출차시간 평균은 배정 차량 기준입니다. 미배정률과 함께 확인하세요. 점유율은 모든 전략에서 동일한 고정 관측 구간을 사용하며, 시간·지연·비용은 남은 차량이 출차할 때까지 계산합니다. 자세한 정의와 DQN 근거는 [모델·학습·평가 규약](docs/simulation-model.md)에 있습니다.
-
-실제 개별 차량 데이터·정밀 시설 좌표 연동, MILP/MPC, Multi-Agent, 다층·레이아웃 편집기는 확장 범위입니다.
-
-## 검증과 구조
-
-```bash
-pnpm test
-pnpm build
-pnpm format:check
-```
-
-자동 테스트 33개가 기존 배정 규칙·CSV 검증, 이동·대기 시간, 간선 용량, 주차면 예약·해제, 공항 데이터 파싱·초기 점유·진입 간격·보간 연속성, 결정론적 실행, 보상 비용 보존, DQN 학습·마스킹을 검증합니다. 브라우저 검증 내용과 시연 순서는 [검증 기록](docs/verification.md)을 확인하세요.
-
-```text
-src/twin/      공통 모델·레이아웃·수요·전략·교통 엔진
-src/rl/        DQN 학습 연산·정책 검증·공유 추론
-src/ui/        지도·타임라인·표시·다운로드
-src/App.tsx    실험 설정·동기 재생·비교·입출력 화면
-src/index.ts   CLI
-scripts/       학습·배치 평가
-experiments/   학습·독립 평가 기록
-public/        웹에서 불러오는 학습 정책
-```
+중간 프로토타입 `src/simulation.ts`는 회귀 검증용이며 현재 웹·CLI·학습·평가는 공통 `src/twin/`을 사용합니다. [검증 기록](docs/verification.md)과 [최초 구현 계획](docs/implementation-plan.md)을 함께 남겼습니다.
