@@ -9,13 +9,15 @@ export function seededRandom(seed: number) {
   };
 }
 export function baseline(
-  id: "nearest" | "random" | "rule",
+  id: "nearest" | "random" | "rule" | "search",
   seed = 1,
 ): Strategy {
   const random = seededRandom(seed);
   return {
     id,
     choose(observation: Observation) {
+      if (id === "search")
+        throw new Error("무안내 탐색은 전역 주차면 선택을 호출하지 않습니다.");
       const candidates = observation.candidates.filter((c) => c.available);
       if (!candidates.length) throw new Error("배정할 빈 주차면이 없습니다.");
       if (id === "random")

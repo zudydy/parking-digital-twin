@@ -1,3 +1,4 @@
+import { withSearchCirculation } from "../twin/search.js";
 import type { AirportSnapshot, FloorId } from "../data/incheon.js";
 import { createAirportScenario } from "../twin/airport.js";
 import {
@@ -30,9 +31,11 @@ export function makeResearchScenario(
   noise: number,
   snapshot: AirportSnapshot,
 ) {
-  return family === "airport"
-    ? createAirportScenario(snapshot, kind as FloorId, seed, count, noise)
-    : family === "asymmetric"
-      ? createAsymmetricScenario(kind as ScenarioType, seed, count, noise)
-      : createScenario(kind as ScenarioType, seed, count, noise);
+  return withSearchCirculation(
+    family === "airport"
+      ? createAirportScenario(snapshot, kind as FloorId, seed, count, noise)
+      : family === "asymmetric"
+        ? createAsymmetricScenario(kind as ScenarioType, seed, count, noise)
+        : createScenario(kind as ScenarioType, seed, count, noise),
+  );
 }

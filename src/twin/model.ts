@@ -43,6 +43,7 @@ export interface Scenario {
   vehicles: Demand[];
   layout: Layout;
   layoutFamily?: "standard" | "asymmetric" | "airport";
+  searchOrder?: "distributed" | "sequential";
   initialParked?: {
     vehicleId: string;
     spotId: number;
@@ -63,15 +64,28 @@ export interface Scenario {
   };
 }
 export type Phase =
-  "inbound" | "parking" | "parked" | "outbound" | "exited" | "rejected";
+  | "inbound"
+  | "searching"
+  | "parking"
+  | "parked"
+  | "outbound"
+  | "exited"
+  | "rejected";
 export interface Segment {
   edgeId: string;
   start: number;
   end: number;
-  direction: "inbound" | "outbound";
+  direction: "inbound" | "searching" | "outbound";
 }
 export interface Trip {
   initial?: boolean;
+  searchStartedAt: number | null;
+  searchEndedAt: number | null;
+  spotFoundAt: number | null;
+  searchDistance: number;
+  checkedSpots: number;
+  searchLaps: number;
+  rejectionReason: "gate-full" | "search-exhausted" | null;
   vehicleId: string;
   arrivalTime: number;
   estimatedDeparture: number;
@@ -111,6 +125,13 @@ export interface Metrics {
   rejected: number;
   rejectionRate: number;
   averageParkingTime: number;
+  averageSearchTime: number;
+  averageSearchDistance: number;
+  averageDetourDistance: number;
+  totalSearchDistance: number;
+  searchFailures: number;
+  entryRejected: number;
+  admitted: number;
   averageExitTime: number;
   averageScheduledExitTime: number;
   averageScheduleDelay: number;
@@ -137,6 +158,12 @@ export interface DecisionRecord {
 export interface TwinResult {
   objectiveVersion: "service-first-v2";
   decisions: DecisionRecord[];
+  searchChecks: {
+    vehicleId: string;
+    time: number;
+    spotId: number;
+    available: boolean;
+  }[];
   scenario: Omit<Scenario, "vehicles">;
   strategy: string;
   trips: Trip[];

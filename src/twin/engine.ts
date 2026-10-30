@@ -1,3 +1,8 @@
+import {
+  withSearchCirculation,
+  searchCircuits,
+  startingAisle,
+} from "./search.js";
 import { OBJECTIVE_VERSION, REWARD_SCALE, serviceScore } from "./objective.js";
 import { routeLength, shortestPath } from "./layout.js";
 import type {
@@ -21,6 +26,7 @@ interface Runtime {
   queuedAt?: number;
   queueOrder?: number;
   readyAt?: number;
+  searchRow?: number;
 }
 export const MAX_TICKS = 20000;
 
@@ -29,6 +35,7 @@ export class TwinEnvironment {
   readonly frames: Frame[] = [];
   readonly trips: Trip[] = [];
   readonly decisions: DecisionRecord[] = [];
+  readonly searchChecks: TwinResult["searchChecks"] = [];
   private rejectedCount = 0;
   private rewardCursor = 0;
   private operatingScale = 1;
@@ -47,7 +54,11 @@ export class TwinEnvironment {
   private inbound = new Map<number, Edge[]>();
   private outbound = new Map<number, Edge[]>();
 
-  constructor(scenario: Scenario, record = true) {
+  private searching: boolean;
+  private circuits: Edge[][] = [];
+  constructor(scenario: Scenario, record = true, searching = false) {
+    if (searching) scenario = withSearchCirculation(scenario);
+    this.searching = searching;
     this.scenario = scenario;
     this.record = record;
     this.validate();
@@ -108,6 +119,13 @@ export class TwinEnvironment {
       )!.node;
       const trip: Trip = {
         initial: true,
+        searchStartedAt: null,
+        searchEndedAt: null,
+        spotFoundAt: 0,
+        searchDistance: 0,
+        checkedSpots: 0,
+        searchLaps: 0,
+        rejectionReason: null,
         vehicleId: initial.vehicleId,
         arrivalTime: 0,
         estimatedDeparture: initial.estimatedDeparture,
@@ -142,6 +160,7 @@ export class TwinEnvironment {
       this.reserved.set(initial.spotId, runtime);
       this.occupied.add(initial.spotId);
     }
+    if (searching) this.circuits = searchCircuits(scenario);
     this.prepareDecision();
   }
   private validate() {
@@ -283,6 +302,13 @@ export class TwinEnvironment {
         featureMode: diagnosis?.featureMode ?? "full",
       });
     const trip: Trip = {
+      searchStartedAt: null,
+      searchEndedAt: null,
+      spotFoundAt: this.time,
+      searchDistance: 0,
+      checkedSpots: 0,
+      searchLaps: 0,
+      rejectionReason: null,
       vehicleId: demand.vehicleId,
       arrivalTime: demand.arrivalTime,
       estimatedDeparture: demand.estimatedDeparture,
@@ -326,8 +352,26 @@ export class TwinEnvironment {
       const demand = this.ordered[this.cursor]!;
       while (this.time < demand.arrivalTime) this.tick();
       this.dispatch();
-      if (this.reserved.size < this.scenario.layout.spots.length) return;
+      const searchingCount = this.runtimes.filter(
+        (r) => r.trip.phase === "searching",
+      ).length;
+      if (
+        this.reserved.size + searchingCount <
+        this.scenario.layout.spots.length
+      ) {
+        if (!this.searching) return;
+        this.admitSearcher(demand);
+        this.cursor++;
+        continue;
+      }
       this.trips.push({
+        searchStartedAt: null,
+        searchEndedAt: null,
+        spotFoundAt: null,
+        searchDistance: 0,
+        checkedSpots: 0,
+        searchLaps: 0,
+        rejectionReason: "gate-full",
         vehicleId: demand.vehicleId,
         arrivalTime: demand.arrivalTime,
         estimatedDeparture: demand.estimatedDeparture,
@@ -347,8 +391,101 @@ export class TwinEnvironment {
       this.rejectedCount++;
       this.cursor++;
     }
-    while (this.runtimes.some((r) => r.trip.phase !== "exited")) this.tick();
+    while (
+      this.runtimes.some(
+        (r) => r.trip.phase !== "exited" && r.trip.phase !== "rejected",
+      )
+    )
+      this.tick();
     this.capture();
+  }
+  private admitSearcher(demand: Demand) {
+    const row =
+      this.scenario.searchOrder === "sequential"
+        ? 0
+        : startingAisle(
+            this.scenario.seed,
+            demand.vehicleId,
+            this.circuits.length,
+          );
+    const trip: Trip = {
+      vehicleId: demand.vehicleId,
+      arrivalTime: demand.arrivalTime,
+      estimatedDeparture: demand.estimatedDeparture,
+      spotId: null,
+      phase: "searching",
+      node: this.scenario.layout.entrance,
+      route: [],
+      segments: [],
+      parkedAt: null,
+      departureRequestedAt: demand.departureRequest ?? null,
+      departureReadyAt: null,
+      leftSpotAt: null,
+      exitedAt: null,
+      waitingTicks: 0,
+      distance: 0,
+      searchStartedAt: this.time,
+      searchEndedAt: null,
+      spotFoundAt: null,
+      searchDistance: 0,
+      checkedSpots: 0,
+      searchLaps: 0,
+      rejectionReason: null,
+    };
+    const runtime: Runtime = {
+      trip,
+      demand,
+      path: this.circuits[row]!,
+      index: 0,
+      searchRow: row,
+    };
+    this.trips.push(trip);
+    this.runtimes.push(runtime);
+    this.enqueue(runtime);
+  }
+  private inspectLocalSpace(r: Runtime) {
+    // Only the bay at the driver's current node is visible. Never inspect remote vacancies.
+    const spot = this.scenario.layout.spots.find((s) => s.node === r.trip.node);
+    if (spot) {
+      r.trip.checkedSpots++;
+      if (this.record)
+        this.searchChecks.push({
+          vehicleId: r.trip.vehicleId,
+          time: this.time,
+          spotId: spot.id,
+          available: !this.reserved.has(spot.id),
+        });
+      if (!this.reserved.has(spot.id)) {
+        r.trip.spotId = spot.id;
+        r.trip.spotFoundAt = this.time;
+        r.trip.searchEndedAt = this.time;
+        this.reserved.set(spot.id, r);
+        r.trip.phase = "parking";
+        r.readyAt = this.time + 1;
+        this.totalCost++;
+        return;
+      }
+    }
+    if (r.index >= r.path.length) {
+      r.trip.searchLaps++;
+      if (r.trip.searchLaps >= this.circuits.length) {
+        r.trip.searchEndedAt = this.time;
+        r.trip.rejectionReason = "search-exhausted";
+        this.rejectedCount++;
+        r.trip.phase = "outbound";
+        r.path = shortestPath(
+          this.scenario.layout,
+          r.trip.node,
+          this.scenario.layout.exit,
+        );
+        r.index = 0;
+      } else {
+        r.searchRow = (r.searchRow! + 1) % this.circuits.length;
+        r.path = this.circuits[r.searchRow]!;
+        r.index = 0;
+      }
+    }
+    this.enqueue(r);
   }
   private tick() {
     // At time t: complete movements and release departures before arrivals at t.
@@ -370,15 +507,21 @@ export class TwinEnvironment {
       if (r.active?.end === this.time) {
         r.trip.node = r.active.edge.to;
         r.trip.distance += r.active.edge.ticks;
+        if (r.trip.phase === "searching")
+          r.trip.searchDistance += r.active.edge.ticks;
         r.active = undefined;
         r.index++;
+        if (r.trip.phase === "searching") {
+          this.inspectLocalSpace(r);
+          continue;
+        }
         if (r.index < r.path.length) this.enqueue(r);
         else if (r.trip.phase === "inbound") {
           r.trip.phase = "parking";
           r.readyAt = this.time + 1;
           this.totalCost++;
         } else {
-          r.trip.phase = "exited";
+          r.trip.phase = r.trip.rejectionReason ? "rejected" : "exited";
           r.trip.exitedAt = this.time;
         }
       }
@@ -413,14 +556,19 @@ export class TwinEnvironment {
         (a, b) => a.queuedAt! - b.queuedAt! || a.queueOrder! - b.queueOrder!,
       );
     for (const r of queued) {
-      const edge = r.path[r.index]!;
+      const edge = r.path[r.index];
+      if (!edge) throw new Error("대기 차량의 다음 통로가 없습니다.");
       if (
         (used.get(edge.id) ?? 0) >= edge.capacity ||
         (edge.headway !== undefined &&
           this.time - (this.lastEntry.get(edge.id) ?? -Infinity) < edge.headway)
       )
         continue;
-      if (r.trip.phase === "outbound" && r.trip.leftSpotAt === null) {
+      if (
+        r.trip.phase === "outbound" &&
+        r.trip.spotId !== null &&
+        r.trip.leftSpotAt === null
+      ) {
         r.trip.leftSpotAt = this.time;
         this.reserved.delete(r.trip.spotId!);
         this.occupied.delete(r.trip.spotId!);
@@ -432,7 +580,7 @@ export class TwinEnvironment {
         edgeId: edge.id,
         start: this.time,
         end: r.active.end,
-        direction: r.trip.phase as "inbound" | "outbound",
+        direction: r.trip.phase as "inbound" | "searching" | "outbound",
       });
       used.set(edge.id, (used.get(edge.id) ?? 0) + 1);
     }
@@ -449,9 +597,9 @@ export class TwinEnvironment {
       occupied: [...this.occupied],
       reserved: [...this.reserved.keys()],
       arrived: this.trips.filter((t) => !t.initial).length,
-      rejected: this.trips.filter((t) => t.spotId === null).length,
+      rejected: this.trips.filter((t) => t.rejectionReason !== null).length,
       vehicles: this.runtimes
-        .filter((r) => r.trip.phase !== "exited")
+        .filter((r) => r.trip.phase !== "exited" && r.trip.phase !== "rejected")
         .map((r) => {
           const node = nodes.get(r.trip.node)!;
           const from = r.active ? nodes.get(r.active.edge.from)! : node;
@@ -482,6 +630,10 @@ export class TwinEnvironment {
     if (!this.done) throw new Error("시뮬레이션이 아직 완료되지 않았습니다.");
     const demandTrips = this.trips.filter((t) => !t.initial);
     const assigned = demandTrips.filter((t) => t.spotId !== null);
+    const admitted = demandTrips.filter(
+      (t) => t.rejectionReason !== "gate-full",
+    );
+    const searched = admitted.filter((t) => t.searchStartedAt !== null);
     const mean = (get: (trip: Trip) => number) =>
       assigned.length
         ? assigned.reduce((sum, trip) => sum + get(trip), 0) / assigned.length
@@ -490,6 +642,7 @@ export class TwinEnvironment {
     return {
       objectiveVersion: OBJECTIVE_VERSION,
       decisions: this.decisions,
+      searchChecks: this.searchChecks,
       scenario,
       strategy,
       trips: this.trips,
@@ -502,6 +655,35 @@ export class TwinEnvironment {
           ? ((demandTrips.length - assigned.length) / demandTrips.length) * 100
           : 0,
         averageParkingTime: mean((t) => t.parkedAt! - t.arrivalTime),
+        admitted: admitted.length,
+        entryRejected: demandTrips.filter(
+          (t) => t.rejectionReason === "gate-full",
+        ).length,
+        searchFailures: searched.filter(
+          (t) => t.rejectionReason === "search-exhausted",
+        ).length,
+        averageSearchTime: searched.length
+          ? searched.reduce(
+              (sum, t) => sum + t.searchEndedAt! - t.searchStartedAt!,
+              0,
+            ) / searched.length
+          : 0,
+        averageSearchDistance: searched.length
+          ? searched.reduce((sum, t) => sum + t.searchDistance, 0) /
+            searched.length
+          : 0,
+        totalSearchDistance: searched.reduce(
+          (sum, t) => sum + t.searchDistance,
+          0,
+        ),
+        averageDetourDistance: mean((t) =>
+          t.searchStartedAt === null
+            ? 0
+            : Math.max(
+                0,
+                t.searchDistance - routeLength(this.inbound.get(t.spotId!)!),
+              ),
+        ),
         averageExitTime: mean((t) => t.exitedAt! - t.departureReadyAt!),
         averageScheduledExitTime: mean(
           (t) => t.exitedAt! - t.departureRequestedAt!,
@@ -537,7 +719,11 @@ export function simulateTwin(
   strategy: Strategy,
   record = true,
 ): TwinResult {
-  const environment = new TwinEnvironment(scenario, record);
+  const environment = new TwinEnvironment(
+    scenario,
+    record,
+    strategy.id === "search",
+  );
   while (!environment.done) {
     const observation = environment.observation()!;
     environment.step(
