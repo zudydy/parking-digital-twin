@@ -1,6 +1,6 @@
 # Parking Twin · 2.5D Studio
 
-**v0.4:** 인천공항 공식 주차 현황, 2.5D 차량 시뮬레이션, 배정 근거 검사기와 반복 실험 분석을 제공하는 주차 공간 할당 플랫폼입니다. 최종보고서 본문은 작성하지 않았으며, 실험 원자료·그림·재현 규약을 준비했습니다.
+**v0.5:** 무안내 직접 탐색과 안내 배정 비교, 인천공항 공식 현황, 2.5D 차량 시뮬레이션, 배정 근거 검사기와 반복 실험 분석을 제공하는 주차 공간 할당 플랫폼입니다. 최종보고서 본문은 작성하지 않았으며, 실험 원자료·그림·재현 규약을 준비했습니다.
 
 ## 실행
 
@@ -16,10 +16,20 @@ pnpm preview
 
 기본 [로컬 화면](http://127.0.0.1:5173/)에서 실행합니다. 정책·공식 저장 스냅샷·반복 실험 결과가 포함되어 재학습이나 외부 연결 없이 시연할 수 있습니다. 공식 현황 갱신과 관측 수집에는 dev/preview 서버와 외부 연결이 필요합니다. 정적 호스팅에서는 번들 관측 자료로 대체합니다.
 
+## 직접 탐색과 안내의 비교
+
+기본 화면은 **무안내 직접 탐색 vs 빈자리 안내(Nearest)**의 분할 재생입니다. 이전 Nearest는 모든 빈자리 위치를 알고 진입 시 예약하는 안내 전략이었으며, 일반 운전자의 자리 탐색을 나타내지 않았습니다.
+
+무안내 차량은 도달한 자리만 확인하고, 점유 중이면 지나갑니다. 통로 끝에서 순환로를 거쳐 다음 통로를 확인하고 한 번의 전체 통로 탐색 후에도 자리를 못 찾으면 포기·퇴장합니다. 탐색 시간을 임의로 더하지 않고 실제 간선 이동·대기를 계산합니다. 처음 만난 자리가 비어 있으면 추가 지연 없이 주차합니다.
+
+진입 시 주차 위치를 예약하는 안내와 달리, 무안내 차량은 현장에서 발견한 순간만 자리를 차지합니다. 두 방식 모두 주차 중·진입·탐색 중인 차량 수를 기준으로 동일한 입장 제한을 적용합니다. 기준 방식은 Nearest로 전환할 수 있어 안내 자체의 효과와 RL의 추가 효과를 따로 비교할 수 있습니다.
+
+분산 시작(고정 seed로 첫 통로 선택 후 순차 탐색)과 첫 통로부터 순서 탐색을 지원합니다. 분석 화면은 분산 시작의31,590회 결과이며, 시작 방식 민감도1,080회는 별도 JSON으로 보존합니다. 반환 순환로는 합성 도로이며 실제 인천공항 도면을 복제한 것이 아닙니다.
+
 ## 구현 범위
 
 - Three.js 직교 3D의 세단/SUV·조향·주차·후진 출차, 터미널·조명·그림자, 주야간·회전·확대·탑뷰·차량 추적
-- Nearest·Random·Rule-based·DQN, 동일 수요의 동기 비교, 통로 용량·FIFO·이동 중 예약
+- 무안내 직접 탐색·Nearest·Random·Rule-based·DQN, 동일 수요의 동기 비교, 통로 용량·FIFO·이동 중 예약
 - 기본 20면, 인천공항 T1 80면 축소 모델, 거리와 병목이 다른 비대칭 출구 20면
 - 공항 세 층의 공식 잔여 대수·점유율·관측 시각, 새 관측 저장·중복 제거·시계열 비교
 - 출차정보 사용/제외 정책 전환, 배정 직전 관찰·후보·Q값 검사기
@@ -38,7 +48,7 @@ pnpm format:check
 # 3환경 × 2입력 조건 × 3학습 seed, 각 200 episodes
 pnpm research:train 200
 pnpm research:publish
-# 29,160회: 3환경 × 3수요유형/층 × 3규모 × 3오차 × 30교통 seed × 12실행
+# 31,590회: 3환경 × 3수요유형/층 × 3규모 × 3오차 × 30교통 seed × 13실행
 pnpm research:evaluate
 pnpm research:verify
 # matplotlib이 있는 Python 환경
@@ -49,31 +59,35 @@ pnpm research:provenance
 pnpm collect:airport 8 60000
 ```
 
+안내 정책18개는 v0.4 학습 결과를 유지합니다. 추가 순환로가 안내의 최단 경로·관찰·지표를 바꾸지 않는 것을 검증하고 새 기준으로 다시 평가했습니다. 무안내 탐색을 학습시킨 정책으로 표현하지 않습니다.
+
 `research:train 200 --resume`는 저장된 동일 설정의 정책·로그를 재사용합니다. 고정 공항 스냅샷을 바꾼 경우 새 학습을 하세요. 테스트 seed로 정책을 선택하지 않습니다. 평가에 모든 학습 seed를 포함하고, 화면용 대표 정책만 검증 성능으로 선택합니다. 구체적 설정과 해시는 manifest와 provenance에 보존합니다. `pnpm refresh:airport`는 학습용 고정 스냅샷을 바꾸므로 기존 결과와 구별하세요.
 
-| 파일                               | 내용                                 |
-| ---------------------------------- | ------------------------------------ |
-| `public/research/analysis.json`    | 조건별 평균·편차·대응 구간·교통별 점 |
-| `public/research/runs.csv.gz`      | 29,160회 원자료와 입력 해시          |
-| `public/research/manifest.json`    | 실험 설정·공항 스냅샷·18개 정책 해시 |
-| `public/research/published.json`   | 화면용 정책의 검증 선택 기록         |
-| `public/research/training/`        | 18개 학습 로그                       |
-| `public/research/figures/`         | 재생성 가능한 PNG·SVG 그림           |
-| `experiments/v0.4/policies/`       | 전체 학습 가중치                     |
-| `data/observations/incheon.jsonl`  | 실제 관측 시각의 원자료              |
-| `public/data/incheon-history.json` | 오프라인 시계열 자료                 |
-| `experiments/archive/v0.3/`        | 구 목적함수의 과거 실험              |
+| 파일                                      | 내용                                      |
+| ----------------------------------------- | ----------------------------------------- |
+| `public/research/analysis.json`           | 조건별 평균·편차·대응 구간·교통별 점      |
+| `public/research/runs.csv.gz`             | 31,590회 원자료와 입력 해시               |
+| `public/research/search-sensitivity.json` | 두 탐색 시작 방식의 추가1,080회 평가      |
+| `public/research/manifest.json`           | 실험 설정·공항 스냅샷·18개 안내 정책 해시 |
+| `public/research/published.json`          | 화면용 정책의 검증 선택 기록              |
+| `public/research/training/`               | 18개 학습 로그                            |
+| `public/research/figures/`                | 재생성 가능한 PNG·SVG 그림                |
+| `experiments/v0.4/policies/`              | 전체 학습 가중치                          |
+| `data/observations/incheon.jsonl`         | 실제 관측 시각의 원자료                   |
+| `public/data/incheon-history.json`        | 오프라인 시계열 자료                      |
+| `experiments/archive/v0.3/`               | 구 목적함수의 과거 실험                   |
 
 ## CLI와 CSV
 
 ```bash
-pnpm start -- --scenario incheon --floor ground --strategy rl --count 180
+pnpm start -- --scenario incheon --floor ground --strategy search --count 180
+pnpm start -- --scenario incheon --strategy nearest --count 180
 pnpm start -- --scenario asymmetric --strategy rl --count 70
 pnpm start -- --scenario office --strategy rule --seed 42 --output output/result.json
 pnpm start -- data/vehicles.csv --strategy nearest
 ```
 
-시나리오는 office, cinema, mall, incheon, asymmetric이며 전략은 nearest, random, rule, rl입니다.
+시나리오는 office, cinema, mall, incheon, asymmetric이며 전략은 search, nearest, random, rule, rl입니다.
 
 ```csv
 vehicleId,arrivalTime,duration
