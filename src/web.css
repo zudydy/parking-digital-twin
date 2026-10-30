@@ -70,7 +70,7 @@ button.text-button {
 }
 p {
   line-height: 1.85;
-  color: #7d8a9d;
+  color: #68788e;
   margin: 0;
 }
 h1,
@@ -281,7 +281,7 @@ h1 {
   display: grid;
   gap: 8px;
   font-size: 9px;
-  color: #8591a3;
+  color: #6b7c95;
 }
 .config-row > button {
   height: 37px;
@@ -335,7 +335,7 @@ h1 {
   border-radius: 9px;
 }
 .overview article > span {
-  color: #8b97aa;
+  color: #687a94;
   font-size: 10px;
 }
 .overview strong {
@@ -489,7 +489,7 @@ h1 {
 }
 .spot-state {
   font-size: 6px;
-  fill: #a1aec0;
+  fill: #71839b;
 }
 .queue-label {
   font-size: 6px;
@@ -698,7 +698,7 @@ td:nth-child(3) {
 .result-note {
   font-size: 9px;
   padding: 14px 22px 20px;
-  color: #9ba6b6;
+  color: #6e7e96;
 }
 .details {
   min-height: 380px;
@@ -730,7 +730,7 @@ td:nth-child(3) {
 }
 .empty-inspector p {
   font-size: 10px;
-  color: #a3adbc;
+  color: #74839a;
 }
 .inspector-content {
   padding: 0 22px 12px;
@@ -784,7 +784,7 @@ td:nth-child(3) {
 }
 .model-note p {
   font-size: 9px;
-  color: #98a6bb;
+  color: #5b6f8d;
   margin-top: 6px;
   line-height: 1.9;
 }

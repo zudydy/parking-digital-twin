@@ -1,8 +1,8 @@
 {
   "name": "parking-digital-twin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Nearest \uc54c\uace0\ub9ac\uc998 \uae30\ubc18 \uc8fc\ucc28\uc7a5 \uc2dc\ubbac\ub808\uc774\uc158 \ucd5c\uc18c \ud504\ub85c\ud1a0\ud0c0\uc785",
+  "description": "강화학습 기반 주차 공간 할당과 통로 혼잡을 비교하는 디지털 트윈 플랫폼",
   "type": "module",
   "packageManager": "pnpm@12.3.4",
   "scripts": {
