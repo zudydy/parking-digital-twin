@@ -31,7 +31,7 @@ const rows = csv.map((line) =>
 );
 assert.equal(rows.length, 29160);
 assert.equal(report.runs, rows.length);
-assert.equal(report.summaries.length, 1458);
+assert.equal(report.summaries.length, 486);
 const groups = new Map<string, typeof rows>();
 for (const row of rows) {
   const key = [

@@ -77,7 +77,7 @@ for (const family of FAMILIES)
     summaries.push({
       family,
       strategy,
-      conditions: 81,
+      conditions: 27,
       metrics,
       pairedVsNearest: Object.fromEntries(
         ["rejectionRate", "operatingPerVehicle"].map((k) => [
@@ -87,6 +87,12 @@ for (const family of FAMILIES)
       ),
       ...(strategy === "trained"
         ? {
+            fullMinusUntrained: Object.fromEntries(
+              ["rejectionRate", "operatingPerVehicle"].map((k) => [
+                k,
+                differences("untrained", k),
+              ]),
+            ),
             fullMinusNoDeparture: Object.fromEntries(
               ["rejectionRate", "operatingPerVehicle"].map((k) => [
                 k,
@@ -101,7 +107,7 @@ const result = {
   schemaVersion: 1,
   objective: "service-first-v2",
   aggregation:
-    "Equal weight over the 81 fixed design conditions per family; bootstrap learner × shared traffic after averaging conditions. No population inference over layouts or demand types.",
+    "Equal weight over the 27 fixed design conditions per family; bootstrap learner × shared traffic after averaging conditions. No population inference over layouts or demand types.",
   summaries,
 };
 await writeFile(

@@ -1,13 +1,16 @@
 import { defineConfig } from "vite";
+import { researchDownloadMiddleware } from "./server/downloads.js";
 import { airportMiddleware } from "./server/airport.js";
 export default defineConfig({
   plugins: [
     {
       name: "incheon-public-data",
       configureServer(server) {
+        server.middlewares.use(researchDownloadMiddleware);
         server.middlewares.use(airportMiddleware);
       },
       configurePreviewServer(server) {
+        server.middlewares.use(researchDownloadMiddleware);
         server.middlewares.use(airportMiddleware);
       },
     },

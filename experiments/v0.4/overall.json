@@ -1,0 +1,553 @@
+{
+  "schemaVersion": 1,
+  "objective": "service-first-v2",
+  "aggregation": "Equal weight over the 27 fixed design conditions per family; bootstrap learner × shared traffic after averaging conditions. No population inference over layouts or demand types.",
+  "summaries": [
+    {
+      "family": "standard",
+      "strategy": "nearest",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.096681096681134,
+        "operatingPerVehicle": 12.229037999038004
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "family": "standard",
+      "strategy": "random",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.093314093314135,
+        "operatingPerVehicle": 12.1246176046176
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.003367003367003366,
+          "ci95": [
+            -0.010101010101010098,
+            0
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.10442039442039444,
+          "ci95": [
+            -0.14574098124098125,
+            -0.06540019240019251
+          ]
+        }
+      }
+    },
+    {
+      "family": "standard",
+      "strategy": "rule",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.093314093314135,
+        "operatingPerVehicle": 12.195820105820111
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.0033670033670033664,
+          "ci95": [
+            -0.01122334455667789,
+            0.0022446689113355795
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.033217893217893237,
+          "ci95": [
+            -0.05063993105659774,
+            -0.015880030463363833
+          ]
+        }
+      }
+    },
+    {
+      "family": "standard",
+      "strategy": "trained",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.096681096680914,
+        "operatingPerVehicle": 12.0972604350382
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": 1.927470528863119e-18,
+          "ci95": [
+            -0.008230452674897115,
+            0.007856341189674525
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.13177756399978624,
+          "ci95": [
+            -0.17859924643257982,
+            -0.08622756667201117
+          ]
+        }
+      },
+      "fullMinusUntrained": {
+        "rejectionRate": {
+          "mean": 0.0018705574261129818,
+          "ci95": [
+            -0.004115226337448563,
+            0.00897867564534232
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.052572283683394776,
+          "ci95": [
+            -0.086175618620063,
+            -0.013868940730051878
+          ]
+        }
+      },
+      "fullMinusNoDeparture": {
+        "rejectionRate": {
+          "mean": 0.0022446689113355812,
+          "ci95": [
+            -0.0041152263374485566,
+            0.00898802843247284
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.027020469242691473,
+          "ci95": [
+            -0.1027839105339105,
+            0.0354378574100796
+          ]
+        }
+      }
+    },
+    {
+      "family": "standard",
+      "strategy": "no-departure",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.094436427769562,
+        "operatingPerVehicle": 12.124280904280893
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.0022446689113355795,
+          "ci95": [
+            -0.010101010101010104,
+            0.004489337822671152
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.10475709475709478,
+          "ci95": [
+            -0.176623977873978,
+            -0.03489646464646478
+          ]
+        }
+      }
+    },
+    {
+      "family": "standard",
+      "strategy": "untrained",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.0948105392548,
+        "operatingPerVehicle": 12.149832718721584
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.0018705574261129799,
+          "ci95": [
+            -0.010101010101010098,
+            0.0048634493078937545
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.07920528031639147,
+          "ci95": [
+            -0.13626245256800815,
+            -0.031959315375982116
+          ]
+        }
+      }
+    },
+    {
+      "family": "airport",
+      "strategy": "nearest",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 16.92304526748973,
+        "operatingPerVehicle": 42.018901234567856
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "family": "airport",
+      "strategy": "random",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 16.927223805001603,
+        "operatingPerVehicle": 42.035036403925346
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": 0.004178537511870676,
+          "ci95": [
+            -0.02548749604305184,
+            0.03276669832225371
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0.016135169357391652,
+          "ci95": [
+            -0.04214557613168707,
+            0.07657822095599881
+          ]
+        }
+      }
+    },
+    {
+      "family": "airport",
+      "strategy": "rule",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 16.913939010235328,
+        "operatingPerVehicle": 41.95986113749082
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.009106257254405468,
+          "ci95": [
+            -0.025320776617073,
+            0.0067531919383769755
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.05904009707713415,
+          "ci95": [
+            -0.10103037089796367,
+            -0.02102344887622688
+          ]
+        }
+      }
+    },
+    {
+      "family": "airport",
+      "strategy": "trained",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 16.911367873096243,
+        "operatingPerVehicle": 42.033680982026695
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.011677394393443912,
+          "ci95": [
+            -0.0512234005135241,
+            0.026660071752664157
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0.014779747458759745,
+          "ci95": [
+            -0.03889759945130322,
+            0.06867389029580377
+          ]
+        }
+      },
+      "fullMinusUntrained": {
+        "rejectionRate": {
+          "mean": -0.003218318033132823,
+          "ci95": [
+            -0.0345246385987128,
+            0.024348422496570647
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0.000035102528929663466,
+          "ci95": [
+            -0.04575449773134943,
+            0.047244246597024434
+          ]
+        }
+      },
+      "fullMinusNoDeparture": {
+        "rejectionRate": {
+          "mean": 0.005142274278076722,
+          "ci95": [
+            -0.028040958812563535,
+            0.036201857127782885
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.02795487320178678,
+          "ci95": [
+            -0.06433910256410266,
+            0.011157910379515185
+          ]
+        }
+      }
+    },
+    {
+      "family": "airport",
+      "strategy": "no-departure",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 16.90622559881821,
+        "operatingPerVehicle": 42.06163585522852
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.016819668671520623,
+          "ci95": [
+            -0.05308721114276676,
+            0.017517410572966213
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0.04273462066054655,
+          "ci95": [
+            -0.007586359079877688,
+            0.0944003772290808
+          ]
+        }
+      }
+    },
+    {
+      "family": "airport",
+      "strategy": "untrained",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 16.914586191129366,
+        "operatingPerVehicle": 42.03364587949767
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.00845907636031108,
+          "ci95": [
+            -0.04348440083008004,
+            0.022993651296120084
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0.014744644929830074,
+          "ci95": [
+            -0.04621437339523762,
+            0.07429765396925872
+          ]
+        }
+      }
+    },
+    {
+      "family": "asymmetric",
+      "strategy": "nearest",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.096681096681134,
+        "operatingPerVehicle": 10.74759018759019
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "family": "asymmetric",
+      "strategy": "random",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.093314093314135,
+        "operatingPerVehicle": 10.869331409331396
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.003367003367003366,
+          "ci95": [
+            -0.010101010101010098,
+            0
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0.12174122174122176,
+          "ci95": [
+            0.08951563251563252,
+            0.15645695045695052
+          ]
+        }
+      }
+    },
+    {
+      "family": "asymmetric",
+      "strategy": "rule",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.091069424402797,
+        "operatingPerVehicle": 10.770633317299971
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.005611672278338946,
+          "ci95": [
+            -0.014590347923681258,
+            0
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0.02304312970979638,
+          "ci95": [
+            0.009869127785794496,
+            0.0358718935385602
+          ]
+        }
+      }
+    },
+    {
+      "family": "asymmetric",
+      "strategy": "trained",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.094810539254805,
+        "operatingPerVehicle": 10.746705146705166
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.0018705574261129792,
+          "ci95": [
+            -0.010101010101010098,
+            0.004489337822671161
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.0008850408850408752,
+          "ci95": [
+            -0.04359827107049336,
+            0.038455266955267
+          ]
+        }
+      },
+      "fullMinusUntrained": {
+        "rejectionRate": {
+          "mean": 0.0018705574261129825,
+          "ci95": [
+            -0.001496445940890385,
+            0.007856341189674522
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.1251167762278874,
+          "ci95": [
+            -0.18141085457752126,
+            -0.07318376890599124
+          ]
+        }
+      },
+      "fullMinusNoDeparture": {
+        "rejectionRate": {
+          "mean": -0.0018705574261129784,
+          "ci95": [
+            -0.011223344556677893,
+            0.006734006734006748
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": -0.08367644700978032,
+          "ci95": [
+            -0.11667877184543858,
+            -0.04978694350916575
+          ]
+        }
+      }
+    },
+    {
+      "family": "asymmetric",
+      "strategy": "no-departure",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.09668109668091,
+        "operatingPerVehicle": 10.830381593714916
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -9.251858538542971e-19,
+          "ci95": [
+            -0.010101010101010104,
+            0.010101010101010109
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0.08279140612473947,
+          "ci95": [
+            0.026134199134199145,
+            0.14029677729677717
+          ]
+        }
+      }
+    },
+    {
+      "family": "asymmetric",
+      "strategy": "untrained",
+      "conditions": 27,
+      "metrics": {
+        "rejectionRate": 19.092939981828685,
+        "operatingPerVehicle": 10.871821922933034
+      },
+      "pairedVsNearest": {
+        "rejectionRate": {
+          "mean": -0.003741114852225962,
+          "ci95": [
+            -0.011597456041900482,
+            0.0014964459408903857
+          ]
+        },
+        "operatingPerVehicle": {
+          "mean": 0.12423173534284651,
+          "ci95": [
+            0.08964864250975359,
+            0.16014079952968843
+          ]
+        }
+      }
+    }
+  ]
+}
