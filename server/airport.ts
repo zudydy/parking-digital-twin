@@ -1,3 +1,4 @@
+import { recordSnapshot, readHistory } from "./history.js";
 import { parseAirportHtml, AIRPORT_URL } from "../src/data/incheon.js";
 import type { IncomingMessage, ServerResponse } from "node:http";
 let cache: { at: number; body: string } | undefined;
@@ -9,12 +10,14 @@ export async function fetchAirport() {
       const response = await fetch(AIRPORT_URL, {
         signal: AbortSignal.timeout(10000),
         headers: {
-          "User-Agent": "ParkingTwin-Research/0.3 (+local graduation project)",
+          "User-Agent": "ParkingTwin-Research/0.4 (+local graduation project)",
         },
       });
       if (!response.ok)
         throw new Error("공식 주차 현황 서버가 응답하지 않습니다.");
-      const body = JSON.stringify(parseAirportHtml(await response.text()));
+      const snapshot = parseAirportHtml(await response.text());
+      await recordSnapshot(snapshot);
+      const body = JSON.stringify(snapshot);
       cache = { at: Date.now(), body };
       return body;
     })().finally(() => {
@@ -27,6 +30,26 @@ export function airportMiddleware(
   res: ServerResponse,
   next: () => void,
 ) {
+  if (req.url?.split("?")[0] === "/api/incheon/history") {
+    if (req.method !== "GET") {
+      res.writeHead(405);
+      res.end();
+      return;
+    }
+    void readHistory()
+      .then((history) => {
+        res.writeHead(200, {
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store",
+        });
+        res.end(JSON.stringify({ schemaVersion: 1, history }));
+      })
+      .catch(() => {
+        res.writeHead(503);
+        res.end("{}");
+      });
+    return;
+  }
   if (req.url?.split("?")[0] !== "/api/incheon") return next();
   if (req.method !== "GET") {
     res.writeHead(405);
